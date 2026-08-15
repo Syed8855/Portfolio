@@ -491,17 +491,21 @@ html {
 
   .desktop-nav,
   .nav-cta {
-    display: none;
+    display: none !important;
   }
 
   .mobile-nav {
     display: block;
   }
 
+  .mobile-menu-btn {
+    display: block !important;
+  }
+
   .hero {
     padding: 56px 20px 72px;
     min-height: auto;
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr !important;
     gap: 24px;
   }
 

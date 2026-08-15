@@ -2,404 +2,262 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { motion, useReducedMotion, useScroll, useSpring } from "framer-motion";
-import {
-  ArrowLeft,
-  ArrowUpRight,
-  BookOpen,
-  ChevronRight,
-  Code2,
-  Copy,
-  ExternalLink,
-  MapPinned,
-  MonitorSmartphone,
-  Rocket,
-  Sparkles,
-  Check,
-} from "lucide-react";
+import { motion, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
+import { ArrowLeft, ExternalLink, Sparkles, Check, Copy } from "lucide-react";
 import type { Project } from "@/data/portfolio";
-import styles from "./project-case-study.module.css";
 
-// ── Types ─────────────────────────────────────────────────────────
-
-type CaseStudy = {
-  title: string;
-  category: string;
-  heroNote: string;
-  docs: { label: string; href: string };
-  whyThisProject: string;
-  problemStatement: string;
-  solutionOverview: string;
-  techStack: string[];
-  impact: string;
-  improvement: string;
-  learnings: string[];
-  recruiterSummary: string;
+// --- Design System Transitions ---
+const transitionSettings = {
+  micro: { duration: 0.25, ease: "easeOut" },
+  component: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
+  section: { duration: 0.9, ease: [0.16, 1, 0.3, 1] },
 };
 
-// ── Configuration ─────────────────────────────────────────────────
+const revealSection = {
+  hidden: { opacity: 0, y: 40 },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: transitionSettings.section
+  },
+};
 
-const sectionNav = [
-  ["why", "Why this project"],
-  ["problem", "Problem & Solution"],
-  ["tech", "Tech stack"],
-  ["impact", "Impact & Improvements"],
-  ["learn", "Key learnings"],
-  ["summary", "Recruiter summary"],
-] as const;
-
-const sectionIds = sectionNav.map(([id]) => id);
-
-// ── Helpers ───────────────────────────────────────────────────────
-
-function useActiveSection(): string {
-  const [activeId, setActiveId] = useState<string>(sectionIds[0] ?? "");
-
-  useEffect(() => {
-    const observers: IntersectionObserver[] = [];
-    sectionIds.forEach((id) => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      const observer = new IntersectionObserver(
-        ([entry]) => { if (entry.isIntersecting) setActiveId(id); },
-        { rootMargin: "-15% 0px -68% 0px", threshold: 0 }
-      );
-      observer.observe(el);
-      observers.push(observer);
-    });
-    return () => observers.forEach((obs) => obs.disconnect());
-  }, []);
-
-  return activeId;
-}
-
-// Map the generic Project data straight into the CaseStudy type, without fabrication.
-function buildCaseStudy(project: Project): CaseStudy {
-  const repoUrl = "https://github.com/Syed8855/Portfolio";
-  
-  return {
-    title: project.name,
-    category: project.category,
-    heroNote: "The details below represent the factual implementation and outcomes of this project without fabricated narratives.",
-    docs: { label: "Repository README", href: `${repoUrl}#readme` },
-    whyThisProject: project.whyChosen,
-    problemStatement: project.description,
-    solutionOverview: project.outcome,
-    techStack: project.stack,
-    impact: project.communityImpact,
-    improvement: project.improvement,
-    learnings: project.learnings,
-    recruiterSummary: `${project.name} (${project.category}): ${project.description} Outcome: ${project.outcome}`,
-  };
-}
-
-// ── Layout Components ─────────────────────────────────────────────
-
-function Section({ id, children }: { id: string; children: React.ReactNode }) {
+function Section({ id, children, className = "" }: { id: string; children: React.ReactNode; className?: string }) {
+  const reducedMotion = useReducedMotion() ?? false;
   return (
-    <section id={id} className={styles.section}>
+    <motion.section
+      id={id}
+      className={`container ${className}`}
+      initial={reducedMotion ? false : "hidden"}
+      whileInView={reducedMotion ? undefined : "visible"}
+      viewport={{ once: true, margin: "-10%" }}
+      variants={revealSection}
+      style={{ paddingTop: "var(--sp-7)", paddingBottom: "var(--sp-7)", borderBottom: "1px solid var(--border-color)" }}
+    >
       {children}
-    </section>
+    </motion.section>
   );
 }
 
-function SectionHeading({ eyebrow, title, summary }: { eyebrow: string; title: string; summary: string }) {
+// --- Animated Flow Component (IPO) ---
+function FlowAnimation({ stack }: { stack: string[] }) {
+  const steps = ["INPUT", "PREPROCESSING", "MODEL / LOGIC", "POSTPROCESSING", "OUTPUT"];
+  
   return (
-    <header className={styles.sectionHeader}>
-      <p className={styles.galleryEyebrow}>{eyebrow}</p>
-      <h2>{title}</h2>
-      <p>{summary}</p>
-    </header>
-  );
-}
-
-function Card({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  return <div className={`${styles.card} ${className}`}>{children}</div>;
-}
-
-function Pill({ tone, children }: { tone: "verified" | "inferred" | "availability"; children: React.ReactNode }) {
-  const tClass = tone === "verified" ? styles.badgeVerified : tone === "inferred" ? styles.badgeInferred : styles.badgeAvailability;
-  return <span className={`${styles.pill} ${tClass}`}>{children}</span>;
-}
-
-function StickyNav({ items, activeId }: { items: readonly (readonly [string, string])[]; activeId: string }) {
-  return (
-    <aside className={styles.stickyNav} aria-label="Project sections">
-      <div className={styles.stickyNavCard}>
-        <p className={styles.navLabel}>Project navigation</p>
-        <nav>
-          {items.map(([id, label]) => (
-            <a key={id} href={`#${id}`} className={activeId === id ? styles.activeNavLink : ""}>
-              {label}
-              <ChevronRight size={14} />
-            </a>
-          ))}
-        </nav>
-      </div>
-    </aside>
-  );
-}
-
-// ── Sections ──────────────────────────────────────────────────────
-
-function HeroSection({ study, project }: { study: CaseStudy; project: Project }) {
-  const reducedMotion = useReducedMotion() ?? false;
-  return (
-    <section className={styles.hero}>
-      <motion.div
-        className={styles.heroCopy}
-        initial={reducedMotion ? false : { opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-      >
-        <div className={styles.heroTopRow}>
-          <Link href="/#work" className={styles.backLink}>
-            <ArrowLeft size={16} /> Back to work
-          </Link>
-          <div className={styles.heroLinks}>
-            <a href={study.docs.href} target="_blank" rel="noreferrer">
-              {study.docs.label} <ExternalLink size={14} />
-            </a>
-          </div>
-        </div>
-        <h1>{study.title}</h1>
-        <p className={styles.leadCopy}>{study.category}</p>
-        
-        <div className={styles.heroMeta}>
-          <Card>
-            <span>Tech Stack</span>
-            <strong>{project.stack.join(", ")}</strong>
-          </Card>
-          <Card>
-            <span>Status</span>
-            <strong>Completed</strong>
-          </Card>
-        </div>
-      </motion.div>
-      <motion.div
-        initial={reducedMotion ? false : { opacity: 0, scale: 0.97 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.6, delay: 0.18 }}
-      >
-        <Card className={styles.heroVisual}>
-          <div className={styles.heroVisualTop}>
-            <div>
-              <p className={styles.visualLabel}>Case study visual</p>
-              <h3>Engineering story at a glance</h3>
+    <div style={{ padding: "var(--sp-5)", background: "var(--bg-primary)", border: "1px solid var(--border-color)", borderRadius: "8px", position: "relative", overflow: "hidden" }}>
+      <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: "100%", height: "100%", background: "radial-gradient(circle, var(--accent-glow) 0%, transparent 70%)", opacity: 0.3, pointerEvents: "none" }} />
+      <div style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)", position: "relative", zIndex: 1 }}>
+        {steps.map((step, i) => (
+          <motion.div 
+            key={step}
+            initial={{ opacity: 0.3, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ delay: i * 0.15, duration: 0.5 }}
+            style={{ display: "flex", alignItems: "center", gap: "var(--sp-3)" }}
+          >
+            <div style={{ width: "32px", height: "32px", borderRadius: "50%", border: "1px solid var(--border-color)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px", color: "var(--text-secondary)" }}>
+              {i + 1}
             </div>
-            <Sparkles size={18} />
-          </div>
-          <div className={styles.floatingBadges} aria-hidden="true">
-            {project.stack.map((tech, i) => (
-              <motion.span
-                key={tech}
-                className={styles.floatingBadge}
-                animate={reducedMotion ? {} : {
-                  y: [0, -6 + (i % 3) * 3, 0],
-                  opacity: [0.65, 1, 0.65],
-                }}
-                transition={{
-                  duration: 2.6 + i * 0.45,
-                  repeat: Infinity,
-                  delay: i * 0.38,
-                  ease: "easeInOut",
-                }}
-              >
-                {tech}
-              </motion.span>
-            ))}
-          </div>
-          <div className={styles.visualGrid}>
-            <div>
-              <span>Project</span>
-              <strong>{project.name}</strong>
+            <div style={{ flex: 1, padding: "var(--sp-2) var(--sp-3)", border: "1px solid var(--border-color)", background: "rgba(255,255,255,0.02)", borderRadius: "4px" }}>
+              <div className="text-meta" style={{ color: "var(--text-primary)" }}>{step}</div>
             </div>
-            <div>
-              <span>Technology focus</span>
-              <strong>{project.stack.join(" / ")}</strong>
-            </div>
-            <div>
-              <span>Evidence quality</span>
-              <strong>Repository-backed</strong>
-            </div>
-          </div>
-          <p className={styles.heroNote}>{study.heroNote}</p>
-        </Card>
-      </motion.div>
-    </section>
-  );
-}
-
-function WhyThisProject({ study }: { study: CaseStudy }) {
-  return (
-    <Section id="why">
-      <SectionHeading eyebrow="01 / CONTEXT" title="Why this project?" summary="The core motivation behind selecting and building this project." />
-      <Card className={styles.featureCard}>
-        <p>{study.whyThisProject}</p>
-      </Card>
-    </Section>
-  );
-}
-
-function ProblemSolution({ study }: { study: CaseStudy }) {
-  return (
-    <Section id="problem">
-      <SectionHeading eyebrow="02 / PROBLEM & SOLUTION" title="What was built" summary="The specific problem addressed and the resulting solution." />
-      <div className={styles.tableLike}>
-        <Card className={`${styles.tableCell} ${styles.challengeCell}`}>
-          <p className={styles.tableLabel}>The Problem</p>
-          <p>{study.problemStatement}</p>
-        </Card>
-        <Card className={`${styles.tableCell} ${styles.solutionCell}`}>
-          <p className={styles.tableLabel}>The Solution</p>
-          <p>{study.solutionOverview}</p>
-        </Card>
-      </div>
-    </Section>
-  );
-}
-
-function TechStack({ study }: { study: CaseStudy }) {
-  return (
-    <Section id="tech">
-      <SectionHeading eyebrow="03 / TECHNOLOGY STACK" title="Technologies used" summary="The core stack used to implement this project." />
-      <div className={styles.stackGrid}>
-        {study.techStack.map((tech) => (
-          <Card key={tech} className={`${styles.stackCard} ${styles.catDefault}`}>
-            <div className={styles.stackCardTop}>
-              <h3>{tech}</h3>
-              <Code2 size={18} />
-            </div>
-          </Card>
+          </motion.div>
         ))}
       </div>
-    </Section>
+    </div>
   );
 }
 
-function ImpactImprovements({ study }: { study: CaseStudy }) {
-  return (
-    <Section id="impact">
-      <SectionHeading eyebrow="04 / OUTCOME" title="Impact & Improvements" summary="The resulting impact of the project and areas for improvement." />
-      <div className={styles.tableLike}>
-        <Card className={styles.tableCell}>
-          <p className={styles.tableLabel}>Community Impact</p>
-          <p>{study.impact}</p>
-        </Card>
-        <Card className={styles.tableCell}>
-          <p className={styles.tableLabel}>Project Improvements</p>
-          <p>{study.improvement}</p>
-        </Card>
-      </div>
-    </Section>
-  );
-}
-
-function KeyLearnings({ study }: { study: CaseStudy }) {
-  return (
-    <Section id="learn">
-      <SectionHeading eyebrow="05 / REFLECTION" title="Key learnings" summary="Engineering and product lessons taken away from this project." />
-      <div className={styles.gridTwo}>
-        {study.learnings.map((learning, i) => (
-          <Card key={i} className={styles.learningCard}>
-            <BookOpen size={18} />
-            <p>{learning}</p>
-          </Card>
-        ))}
-      </div>
-    </Section>
-  );
-}
-
-function RecruiterSummary({ study }: { study: CaseStudy }) {
-  const [copied, setCopied] = useState(false);
-  const [displayed, setDisplayed] = useState("");
-  const [started, setStarted] = useState(false);
-  const reducedMotion = useReducedMotion() ?? false;
-  const fullText = study.recruiterSummary;
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (reducedMotion) return;
-    const el = ref.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !started) {
-          setStarted(true);
-          observer.disconnect();
-          let i = 0;
-          const tick = setInterval(() => {
-            i++;
-            setDisplayed(fullText.slice(0, i));
-            if (i >= fullText.length) clearInterval(tick);
-          }, 16);
-        }
-      },
-      { threshold: 0.25 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [reducedMotion, fullText, started]);
-
-  function handleCopy() {
-    void navigator.clipboard.writeText(fullText);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2200);
-  }
-
-  return (
-    <Section id="summary">
-      <SectionHeading eyebrow="06 / RECRUITER SUMMARY" title="One-minute summary" summary="A quick factual overview of the project." />
-      <Card className={styles.summaryCard}>
-        <div className={styles.summaryTop}>
-          <MonitorSmartphone size={18} />
-          <div ref={ref} className={styles.summaryTextWrap}>
-            <p className={styles.summaryText}>
-              {reducedMotion ? fullText : (displayed || fullText.slice(0, 1))}
-              {!reducedMotion && started && displayed.length < fullText.length && (
-                <span className={styles.typingCursor} aria-hidden="true">|</span>
-              )}
-            </p>
-          </div>
-          <button type="button" className={styles.copyBtn} onClick={handleCopy} aria-label="Copy recruiter summary to clipboard">
-            {copied ? <Check size={15} /> : <Copy size={15} />}
-          </button>
-        </div>
-      </Card>
-    </Section>
-  );
-}
-
-// ── Root Page ─────────────────────────────────────────────────────
+// --- Page Components ---
 
 export function ProjectCaseStudy({ project }: { project: Project }) {
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 28 });
-  const study = buildCaseStudy(project);
-  const activeId = useActiveSection();
+  const reducedMotion = useReducedMotion() ?? false;
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   return (
-    <div className={styles.page}>
-      <motion.div className={styles.progress} style={{ scaleX }} />
-      <main className={styles.main}>
-        <HeroSection study={study} project={project} />
-        <div className={styles.bodyGrid}>
-          <div className={styles.contentColumn}>
-            <WhyThisProject study={study} />
-            <ProblemSolution study={study} />
-            <TechStack study={study} />
-            <ImpactImprovements study={study} />
-            <KeyLearnings study={study} />
-            <RecruiterSummary study={study} />
-          </div>
-          <StickyNav items={sectionNav} activeId={activeId} />
+    <div style={{ background: "var(--bg-primary)", minHeight: "100vh" }}>
+      <motion.div style={{ scaleX, background: "var(--accent-color)", height: "3px", position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000, transformOrigin: "left" }} />
+      
+      {/* Navbar (Minimal) */}
+      <header style={{ padding: "var(--sp-4) 0", borderBottom: "1px solid var(--border-color)" }}>
+        <div className="container" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <Link href="/#work" className="text-meta hover-text" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <ArrowLeft size={16} /> BACK TO WORK
+          </Link>
+          <a href="https://github.com/Syed8855/Portfolio" target="_blank" rel="noreferrer" className="text-meta hover-text" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            GITHUB <ExternalLink size={16} />
+          </a>
         </div>
+      </header>
+
+      <main>
+        {/* HERO */}
+        <section className="container" style={{ paddingTop: "120px", paddingBottom: "80px" }}>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={transitionSettings.component}>
+            <div className="text-meta" style={{ marginBottom: "var(--sp-4)", color: "var(--accent-color)" }}>
+              {project.category.toUpperCase()}
+            </div>
+            <h1 style={{ fontSize: "var(--text-hero)", lineHeight: 0.95, letterSpacing: "-0.04em", marginBottom: "var(--sp-5)", textTransform: "uppercase" }}>
+              {project.name}
+            </h1>
+            
+            <div className="grid grid-12" style={{ gap: "var(--sp-5)", marginTop: "var(--sp-6)" }}>
+              <div style={{ gridColumn: "span 4" }}>
+                <div className="text-meta" style={{ marginBottom: "8px" }}>ROLE</div>
+                <div className="text-body" style={{ color: "var(--text-primary)" }}>Developer</div>
+              </div>
+              <div style={{ gridColumn: "span 4" }}>
+                <div className="text-meta" style={{ marginBottom: "8px" }}>YEAR</div>
+                <div className="text-body" style={{ color: "var(--text-primary)" }}>2026</div>
+              </div>
+              <div style={{ gridColumn: "span 4", display: "flex", gap: "16px", alignItems: "flex-end" }}>
+                <a href="https://github.com/Syed8855" target="_blank" rel="noreferrer" className="btn btn-primary" style={{ flex: 1 }}>
+                  VIEW CODE <ExternalLink size={16} />
+                </a>
+              </div>
+            </div>
+          </motion.div>
+        </section>
+
+        {/* HERO VISUAL PLACEHOLDER */}
+        <div className="container" style={{ paddingBottom: "var(--sp-7)" }}>
+          <div style={{ width: "100%", aspectRatio: "21/9", background: "var(--border-color)", position: "relative", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
+             <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, background: "linear-gradient(45deg, rgba(0,102,255,0.1), transparent)", zIndex: 1 }} />
+             <Sparkles size={48} opacity={0.2} style={{ zIndex: 2 }} />
+          </div>
+        </div>
+
+        {/* WHY THIS PROJECT */}
+        <Section id="why">
+          <div className="grid grid-12">
+            <div style={{ gridColumn: "span 4" }}>
+              <h2 className="text-meta" style={{ color: "var(--text-primary)" }}>WHY THIS PROJECT?</h2>
+              <p className="text-body" style={{ fontSize: "14px", marginTop: "8px" }}>What problem made this worth building?</p>
+            </div>
+            <div style={{ gridColumn: "span 8" }}>
+              <p className="text-body" style={{ fontSize: "24px", color: "var(--text-primary)" }}>
+                {project.whyChosen}
+              </p>
+            </div>
+          </div>
+        </Section>
+
+        {/* PROBLEM */}
+        <Section id="problem">
+          <div className="grid grid-12">
+            <div style={{ gridColumn: "span 4" }}>
+              <h2 className="text-meta" style={{ color: "var(--text-primary)" }}>THE PROBLEM</h2>
+            </div>
+            <div style={{ gridColumn: "span 8" }}>
+              <p className="text-body" style={{ fontSize: "32px", color: "var(--text-primary)", lineHeight: 1.2 }}>
+                {project.description}
+              </p>
+            </div>
+          </div>
+        </Section>
+
+        {/* APPROACH / IPO */}
+        <Section id="approach">
+          <div className="grid grid-12" style={{ alignItems: "center" }}>
+            <div style={{ gridColumn: "span 5" }}>
+              <h2 className="text-meta" style={{ color: "var(--text-primary)", marginBottom: "var(--sp-4)" }}>THE APPROACH</h2>
+              <p className="text-body" style={{ marginBottom: "var(--sp-5)" }}>
+                A structured breakdown of the system architecture from data ingestion to final output.
+              </p>
+            </div>
+            <div style={{ gridColumn: "span 7" }}>
+              <FlowAnimation stack={project.stack} />
+            </div>
+          </div>
+        </Section>
+
+        {/* TECH STACK */}
+        <Section id="tech">
+           <div className="grid grid-12">
+            <div style={{ gridColumn: "span 4" }}>
+              <h2 className="text-meta" style={{ color: "var(--text-primary)" }}>TECHNOLOGY STACK</h2>
+            </div>
+            <div style={{ gridColumn: "span 8" }}>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
+                {project.stack.map(tech => (
+                  <span key={tech} style={{ padding: "12px 24px", border: "1px solid var(--border-color)", borderRadius: "100px", fontSize: "16px", color: "var(--text-primary)" }}>
+                    {tech}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </Section>
+
+        {/* RESULTS & IMPACT */}
+        <Section id="results">
+          <div className="grid grid-12">
+            <div style={{ gridColumn: "span 12", marginBottom: "var(--sp-6)" }}>
+              <h2 className="text-meta" style={{ color: "var(--text-primary)", textAlign: "center" }}>RESULTS & IMPACT</h2>
+            </div>
+            <div style={{ gridColumn: "span 6", paddingRight: "var(--sp-4)", borderRight: "1px solid var(--border-color)" }}>
+              <div className="text-meta" style={{ marginBottom: "var(--sp-3)" }}>OUTCOME</div>
+              <p className="text-body" style={{ fontSize: "20px", color: "var(--text-primary)" }}>{project.outcome}</p>
+            </div>
+            <div style={{ gridColumn: "span 6", paddingLeft: "var(--sp-4)" }}>
+              <div className="text-meta" style={{ marginBottom: "var(--sp-3)" }}>COMMUNITY IMPACT</div>
+              <p className="text-body" style={{ fontSize: "20px", color: "var(--text-primary)" }}>{project.communityImpact}</p>
+            </div>
+          </div>
+        </Section>
+
+        {/* LEARNINGS */}
+        <Section id="learnings">
+          <div className="grid grid-12">
+             <div style={{ gridColumn: "span 12", marginBottom: "var(--sp-6)" }}>
+              <h2 style={{ fontSize: "var(--text-section)", textAlign: "center", textTransform: "uppercase" }}>KEY LEARNINGS</h2>
+            </div>
+            <div style={{ gridColumn: "span 12" }}>
+              <div style={{ display: "flex", flexDirection: "column" }}>
+                {project.learnings.map((learning, i) => (
+                  <div key={i} style={{ padding: "var(--sp-4) 0", borderTop: "1px solid var(--border-color)", display: "flex", gap: "var(--sp-4)" }}>
+                    <div className="text-meta" style={{ width: "40px" }}>0{i+1}</div>
+                    <p className="text-body" style={{ fontSize: "24px", color: "var(--text-primary)", margin: 0 }}>{learning}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </Section>
+
+        {/* FUTURE */}
+        <Section id="future">
+          <div className="grid grid-12">
+            <div style={{ gridColumn: "span 4" }}>
+              <h2 className="text-meta" style={{ color: "var(--text-primary)" }}>WHAT&apos;S NEXT?</h2>
+            </div>
+            <div style={{ gridColumn: "span 8" }}>
+              <p className="text-body" style={{ fontSize: "24px", color: "var(--text-primary)" }}>
+                {project.improvement}
+              </p>
+            </div>
+          </div>
+        </Section>
+        
+        {/* Next Project / CTA */}
+        <section style={{ padding: "120px 0", textAlign: "center" }}>
+          <Link href="/#work" className="btn btn-primary">
+            BACK TO ALL PROJECTS
+          </Link>
+        </section>
       </main>
-      <footer className={styles.footer}>
-        <Link href="/#work">Back to work</Link>
-        <Link href="/">Portfolio home</Link>
-        <a href={study.docs.href} target="_blank" rel="noreferrer">GitHub repo</a>
+      
+      <footer className="container" style={{ padding: "var(--sp-5) 0", borderTop: "1px solid var(--border-color)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div className="text-meta">© 2026 SYED HASNAIN</div>
+        <div style={{ display: "flex", gap: "24px" }}>
+           <a href="https://github.com/Syed8855" target="_blank" rel="noreferrer" className="text-meta hover-text">GITHUB</a>
+           <a href="https://www.linkedin.com/in/syed-hasnain-peeran/" target="_blank" rel="noreferrer" className="text-meta hover-text">LINKEDIN</a>
+        </div>
       </footer>
     </div>
   );
