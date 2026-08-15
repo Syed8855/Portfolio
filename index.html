@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>Syed Hasnain Peeran | ML Engineer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+  :root{
+    --bg:#060b14;
+    --bg-2:#0b1526;
+    --surface:#0f1c33;
+    --surface-2:#122544;
+    --line:#1c2f4d;
+    --ink:#eef3fb;
+    --ink-dim:#8ea0bd;
+    --ink-faint:#546a82;
+    --accent:#4f8cff;
+    --accent-2:#7db8ff;
+    --warm:#ffb454;
+    --radius:14px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter', sans-serif;
+    overflow-x:hidden;
+    position:relative;
+  }
+  body::before{
+    content:'';
+    position:fixed; inset:0;
+    background-image:
+      radial-gradient(circle at 18% 15%, rgba(79,140,255,0.10), transparent 45%),
+      radial-gradient(circle at 85% 75%, rgba(255,180,84,0.06), transparent 40%),
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size:auto, auto, 42px 42px, 42px 42px;
+    pointer-events:none;
+    z-index:0;
+  }
+  .mono{font-family:'JetBrains Mono', monospace;}
+  .display{font-family:'Space Grotesk', sans-serif;}
+
+  /* Nav */
+  nav{
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:22px 48px;
+    backdrop-filter:blur(10px);
+    background:linear-gradient(to bottom, rgba(6,11,20,0.85), transparent);
+  }
+  .logo{font-family:'Space Grotesk',sans-serif; font-weight:600; letter-spacing:0.02em; font-size:15px;}
+  .navlinks{display:flex; gap:36px; font-size:13px; color:var(--ink-dim);}
+  .navlinks a{color:inherit; text-decoration:none; letter-spacing:0.04em; transition:color .25s;}
+  .navlinks a:hover{color:var(--ink);}
+  .status-pill{
+    display:flex; align-items:center; gap:8px; font-family:'JetBrains Mono',monospace;
+    font-size:11px; letter-spacing:0.08em; color:var(--ink-dim);
+    border:1px solid var(--line); padding:6px 12px; border-radius:100px;
+  }
+  .dot{width:6px; height:6px; border-radius:50%; background:#4ade80; box-shadow:0 0 8px #4ade80;}
+
+  section{position:relative; z-index:1; padding:140px 48px;}
+  .wrap{max-width:1120px; margin:0 auto;}
+
+  /* HERO */
+  .hero{min-height:100vh; display:flex; flex-direction:column; justify-content:center; padding-top:80px;}
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:0.18em;
+    color:var(--accent-2); margin-bottom:28px; display:flex; align-items:center; gap:10px;
+  }
+  .eyebrow::before{content:''; width:24px; height:1px; background:var(--accent-2);}
+  .scatter-title{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:700;
+    font-size:clamp(48px, 9vw, 118px);
+    line-height:0.96;
+    letter-spacing:-0.02em;
+  }
+  .scatter-title .line{display:block; overflow:visible;}
+  .scatter-title .accent-word{color:var(--accent); font-style:italic; font-weight:600;}
+  .char{display:inline-block; will-change:transform, opacity;}
+  .hero-sub{
+    margin-top:34px; font-size:17px; color:var(--ink-dim); max-width:480px; line-height:1.6;
+  }
+  .hero-cta{display:flex; gap:16px; margin-top:44px;}
+  .btn{
+    font-family:'JetBrains Mono',monospace; font-size:13px; letter-spacing:0.04em;
+    padding:14px 26px; border-radius:100px; text-decoration:none; transition:all .25s;
+  }
+  .btn-primary{background:var(--accent); color:#04101f; font-weight:600;}
+  .btn-primary:hover{background:var(--accent-2); transform:translateY(-2px);}
+  .btn-ghost{border:1px solid var(--line); color:var(--ink);}
+  .btn-ghost:hover{border-color:var(--accent-2); color:var(--accent-2);}
+  .hero-meta{
+    position:absolute; bottom:60px; left:48px; right:48px;
+    display:flex; justify-content:space-between; font-family:'JetBrains Mono',monospace;
+    font-size:11px; color:var(--ink-dim); letter-spacing:0.06em;
+  }
+
+  /* INTRO / NAME SCREEN */
+  .intro{
+    height:100vh; display:flex; align-items:center; justify-content:center;
+    padding:0; position:relative;
+  }
+  .intro-inner{text-align:center; position:relative;}
+  .intro-eyebrow{
+    font-size:12px; letter-spacing:0.3em; color:var(--ink-dim); margin-bottom:22px;
+  }
+  .intro-name{
+    font-family:'Space Grotesk',sans-serif; font-weight:700;
+    font-size:clamp(46px, 10vw, 132px);
+    line-height:0.94; letter-spacing:-0.01em;
+  }
+  .intro-name .line{display:block;}
+  .intro-cue{
+    display:flex; align-items:center; gap:14px; justify-content:center;
+    margin-top:56px; font-size:11px; letter-spacing:0.14em; color:var(--ink-dim);
+  }
+  .intro-cue-num{color:var(--accent-2);}
+  .intro-cue-track{
+    width:120px; height:2px; background:var(--line); border-radius:2px; overflow:hidden; position:relative;
+  }
+  .intro-cue-fill{
+    position:absolute; left:0; top:0; bottom:0; width:0%; background:var(--accent);
+  }
+
+  /* Section headers reused across page */
+  .section-head{display:flex; align-items:baseline; gap:16px; margin-bottom:56px;}
+  .section-num{font-family:'JetBrains Mono',monospace; color:var(--accent); font-size:13px;}
+  .section-line{flex:1; height:1px; background:var(--line);}
+  h2.section-title{
+    font-family:'Space Grotesk',sans-serif; font-weight:600;
+    font-size:clamp(28px,3.4vw,42px); letter-spacing:-0.01em; line-height:1.15;
+  }
+
+  /* ABOUT */
+  .about-grid{display:grid; grid-template-columns:1.1fr 0.9fr; gap:64px; align-items:start;}
+  .about-body p{color:var(--ink-dim); font-size:16px; line-height:1.75; max-width:520px;}
+  .stat-row{display:flex; gap:40px; margin-top:40px;}
+  .stat{}
+  .stat .num{font-family:'Space Grotesk',sans-serif; font-size:34px; font-weight:700; color:var(--accent-2);}
+  .stat .label{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink-dim); margin-top:4px;}
+  .edu-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+    padding:28px; margin-top:8px;
+  }
+  .edu-card .role{font-weight:600; font-size:15px; margin-bottom:6px;}
+  .edu-card .place{color:var(--ink-dim); font-size:13px;}
+
+  /* WORK */
+  .project{
+    border-top:1px solid var(--line);
+    padding:40px 0;
+    display:grid; grid-template-columns:80px 1fr 220px; gap:32px; align-items:start;
+    transition:background .3s;
+    cursor:pointer;
+  }
+  .project:hover{background:rgba(79,140,255,0.04);}
+  .project:last-child{border-bottom:1px solid var(--line);}
+  .p-index{font-family:'JetBrains Mono',monospace; color:var(--ink-dim); font-size:13px;}
+  .p-tag{font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--accent-2); letter-spacing:0.08em; margin-bottom:10px; display:block;}
+  .p-title{font-family:'Space Grotesk',sans-serif; font-size:24px; font-weight:600; margin-bottom:10px; transition:color .25s;}
+  .project:hover .p-title{color:var(--accent-2);}
+  .p-desc{color:var(--ink-dim); font-size:14.5px; line-height:1.6; max-width:460px;}
+  .p-stack{display:flex; flex-wrap:wrap; gap:8px; margin-top:14px;}
+  .chip{font-family:'JetBrains Mono',monospace; font-size:10.5px; padding:4px 10px; border:1px solid var(--line); border-radius:100px; color:var(--ink-dim);}
+  .p-links{display:flex; flex-direction:column; gap:10px; align-items:flex-end;}
+  .p-links a{font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--ink-dim); text-decoration:none; display:flex; align-items:center; gap:6px; transition:color .2s;}
+  .p-links a:hover{color:var(--accent-2);}
+
+  /* TOOLKIT */
+  .toolkit-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden;}
+  .tool-cell{background:var(--bg-2); padding:28px 24px;}
+  .tool-cell .cat{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--accent); letter-spacing:0.08em; margin-bottom:18px;}
+  .skill-row{margin-bottom:16px;}
+  .skill-row:last-child{margin-bottom:0;}
+  .skill-top{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:7px;}
+  .skill-name{font-size:13.5px; color:var(--ink);}
+  .skill-pct{font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--ink-dim);}
+  .skill-track{height:3px; background:var(--line); border-radius:3px; overflow:hidden;}
+  .skill-fill{height:100%; width:0%; background:linear-gradient(90deg, var(--accent), var(--accent-2)); border-radius:3px;}
+
+  /* JOURNEY */
+  .timeline{border-left:1px solid var(--line); padding-left:32px; display:flex; flex-direction:column; gap:36px;}
+  .tl-item{position:relative;}
+  .tl-item::before{content:''; position:absolute; left:-37px; top:6px; width:9px; height:9px; border-radius:50%; background:var(--accent); box-shadow:0 0 0 4px rgba(79,140,255,0.15);}
+  .tl-date{font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--accent-2); margin-bottom:6px;}
+  .tl-role{font-weight:600; font-size:16px; margin-bottom:4px;}
+  .tl-desc{color:var(--ink-dim); font-size:14px; line-height:1.6; max-width:520px;}
+
+  /* CONTACT */
+  .contact-inner{text-align:left; display:grid; grid-template-columns:1fr auto; gap:40px; align-items:end;}
+  .contact-title{font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:clamp(34px,5vw,64px); line-height:1.05; letter-spacing:-0.01em;}
+  .contact-email{
+    font-family:'JetBrains Mono',monospace; color:var(--accent-2); font-size:15px; text-decoration:none;
+    border-bottom:1px solid var(--line); padding-bottom:4px;
+  }
+  footer{border-top:1px solid var(--line); margin-top:100px; padding:32px 48px; display:flex; justify-content:space-between; font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--ink-dim);}
+  footer a{color:var(--ink-dim); margin-left:20px; text-decoration:none;}
+  footer a:hover{color:var(--accent-2);}
+
+  @media (max-width:860px){
+    section{padding:90px 24px;}
+    nav{padding:18px 24px;}
+    .navlinks{display:none;}
+    .about-grid{grid-template-columns:1fr;}
+    .project{grid-template-columns:1fr; gap:14px;}
+    .p-links{align-items:flex-start;}
+    .toolkit-grid{grid-template-columns:1fr 1fr;}
+    .contact-inner{grid-template-columns:1fr;}
+    .hero-meta{position:static; margin-top:60px; flex-direction:column; gap:16px;}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">SYED HASNAIN</div>
+  <div class="navlinks">
+    <a href="#work">Work</a>
+    <a href="#about">About</a>
+    <a href="#contact">Contact</a>
+  </div>
+  <div class="status-pill"><span class="dot"></span> AVAILABLE FOR COLLABORATION</div>
+</nav>
+
+<section class="intro">
+  <div class="intro-inner">
+    <div class="intro-eyebrow mono">PORTFOLIO — 2026</div>
+    <h1 class="intro-name">
+      <span class="line" data-scatter-name>SYED</span>
+      <span class="line" data-scatter-name>HASNAIN</span>
+      <span class="line" data-scatter-name>PEERAN</span>
+    </h1>
+    <div class="intro-cue mono">
+      <span class="intro-cue-num">00</span>
+      <span class="intro-cue-track"><span class="intro-cue-fill"></span></span>
+      <span>KEEP SCROLLING</span>
+    </div>
+  </div>
+</section>
+
+<section class="hero">
+  <div class="wrap">
+    <div class="eyebrow">ML ENGINEER · BUILDER · PROBLEM SOLVER</div>
+    <h1 class="scatter-title">
+      <span class="line" data-scatter>BUILDING</span>
+      <span class="line" data-scatter>PRACTICAL <span class="accent-word">intelligence.</span></span>
+    </h1>
+    <p class="hero-sub">for real-world systems — from data preparation and model development to retrieval and the product layer around the model.</p>
+    <div class="hero-cta">
+      <a href="#work" class="btn btn-primary">Explore Work →</a>
+      <a href="documents/syed-hasnain-peeran-resume.pdf" class="btn btn-ghost">Resume</a>
+    </div>
+  </div>
+  <div class="hero-meta">
+    <span>KURNOOL, INDIA</span>
+    <span>01 / INTRO</span>
+  </div>
+</section>
+
+<section id="about">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="section-num">01 / ABOUT</span>
+      <div class="section-line"></div>
+    </div>
+    <h2 class="section-title" data-scatter-scroll>Curious by nature. Grounded in outcomes.</h2>
+    <div class="about-grid" style="margin-top:48px;">
+      <div class="about-body">
+        <p>I enjoy moving from an ambiguous problem to a system people can actually use. My work spans data preparation, model development, retrieval, and the product layer around the model.</p>
+        <div class="stat-row">
+          <div class="stat"><div class="num">8.74</div><div class="label mono">CGPA / 10</div></div>
+          <div class="stat"><div class="num">2023</div><div class="label mono">STARTED B.TECH</div></div>
+          <div class="stat"><div class="num">2026</div><div class="label mono">DATATHON WINNER</div></div>
+        </div>
+      </div>
+      <div class="edu-card">
+        <div class="role">B.Tech, Computer Science & Engineering (Machine Learning)</div>
+        <div class="place">G. Pulla Reddy Engineering College, Kurnool<br>Aug 2023 — Present</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="work">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="section-num">02 / SELECTED WORK</span>
+      <div class="section-line"></div>
+    </div>
+    <h2 class="section-title" data-scatter-scroll>Applied ML, not just notebooks.</h2>
+
+    <div style="margin-top:40px;">
+      <div class="project">
+        <div class="p-index">01</div>
+        <div>
+          <span class="p-tag">AI / OPTIMIZATION</span>
+          <div class="p-title">Warehouse Execution System Optimization</div>
+          <div class="p-desc">A decision-support system combining productivity prediction, SKU clustering, and quantum-inspired order sequencing. Validated warehouse throughput improvements in simulation.</div>
+          <div class="p-stack"><span class="chip">Python</span><span class="chip">Regression</span><span class="chip">Clustering</span><span class="chip">Optimization</span></div>
+        </div>
+        <div class="p-links">
+          <a href="https://wesoptimizer.streamlit.app/" target="_blank">Live demo ↗</a>
+          <a href="/projects/warehouse-execution-system">Project story →</a>
+        </div>
+      </div>
+
+      <div class="project">
+        <div class="p-index">02</div>
+        <div>
+          <span class="p-tag">FULL STACK</span>
+          <div class="p-title">EcoBazarX</div>
+          <div class="p-desc">A sustainable e-commerce platform that helps users discover environmentally responsible alternatives via criteria-based filtering and preference-aware recommendations.</div>
+          <div class="p-stack"><span class="chip">Python</span><span class="chip">Flask</span><span class="chip">Search</span><span class="chip">Recommendations</span></div>
+        </div>
+        <div class="p-links">
+          <a href="/projects/ecobazarx">Project story →</a>
+        </div>
+      </div>
+
+      <div class="project">
+        <div class="p-index">03</div>
+        <div>
+          <span class="p-tag">AI / RAG</span>
+          <div class="p-title">Library RAG System</div>
+          <div class="p-desc">An interactive library experience for intelligent book search and grounded questions over library data. Built for V3 National Hackathon 2026.</div>
+          <div class="p-stack"><span class="chip">RAG</span><span class="chip">Streamlit</span><span class="chip">Python</span></div>
+        </div>
+        <div class="p-links">
+          <a href="/projects/library-rag-system">Project story →</a>
+        </div>
+      </div>
+
+      <div class="project">
+        <div class="p-index">04</div>
+        <div>
+          <span class="p-tag">COMPUTER VISION</span>
+          <div class="p-title">Image Similarity Search</div>
+          <div class="p-desc">CNN feature extraction and FAISS retrieval pipeline for visual nearest-neighbor recommendations. Developed during Intel Unnati Industrial Training.</div>
+          <div class="p-stack"><span class="chip">Python</span><span class="chip">CNN</span><span class="chip">FAISS</span></div>
+        </div>
+        <div class="p-links">
+          <a href="/projects/image-similarity-search">Project story →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="toolkit">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="section-num">03 / TOOLKIT</span>
+      <div class="section-line"></div>
+    </div>
+    <h2 class="section-title" data-scatter-scroll>A versatile technical foundation.</h2>
+    <div class="toolkit-grid" style="margin-top:40px;">
+      <div class="tool-cell">
+        <div class="cat">LANGUAGES</div>
+        <div class="skill-row" data-skill="92"><div class="skill-top"><span class="skill-name">Python</span><span class="skill-pct">92%</span></div><div class="skill-track"><div class="skill-fill"></div></div></div>
+        <div class="skill-row" data-skill="78"><div class="skill-top"><span class="skill-name">SQL</span><span class="skill-pct">78%</span></div><div class="skill-track"><div class="skill-fill"></div></div></div>
+      </div>
+      <div class="tool-cell">
+        <div class="cat">AI / ML</div>
+        <div class="skill-row" data-skill="88"><div class="skill-top"><span class="skill-name">Machine Learning</span><span class="skill-pct">88%</span></div><div class="skill-track"><div class="skill-fill"></div></div></div>
+        <div class="skill-row" data-skill="72"><div class="skill-top"><span class="skill-name">RAG</span><span class="skill-pct">72%</span></div><div class="skill-track"><div class="skill-fill"></div></div></div>
+        <div class="skill-row" data-skill="75"><div class="skill-top"><span class="skill-name">Computer Vision</span><span class="skill-pct">75%</span></div><div class="skill-track"><div class="skill-fill"></div></div></div>
+        <div class="skill-row" data-skill="65"><div class="skill-top"><span class="skill-name">LLM Fundamentals</span><span class="skill-pct">65%</span></div><div class="skill-track"><div class="skill-fill"></div></div></div>
+      </div>
+      <div class="tool-cell">
+        <div class="cat">WEB</div>
+        <div class="skill-row" data-skill="60"><div class="skill-top"><span class="skill-name">Flask / Django</span><span class="skill-pct">60%</span></div><div class="skill-track"><div class="skill-fill"></div></div></div>
+        <div class="skill-row" data-skill="55"><div class="skill-top"><span class="skill-name">React</span><span class="skill-pct">55%</span></div><div class="skill-track"><div class="skill-fill"></div></div></div>
+        <div class="skill-row" data-skill="50"><div class="skill-top"><span class="skill-name">Node.js / Express</span><span class="skill-pct">50%</span></div><div class="skill-track"><div class="skill-fill"></div></div></div>
+      </div>
+      <div class="tool-cell">
+        <div class="cat">TOOLS</div>
+        <div class="p-stack" style="margin-top:0;">
+          <span class="chip">Git / GitHub</span><span class="chip">Linux</span><span class="chip">Jupyter</span><span class="chip">VS Code</span><span class="chip">FAISS</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="journey">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="section-num">04 / JOURNEY</span>
+      <div class="section-line"></div>
+    </div>
+    <h2 class="section-title" data-scatter-scroll>Learning in public, building under pressure.</h2>
+    <div class="timeline" style="margin-top:44px;">
+      <div class="tl-item">
+        <div class="tl-date">DEC 2025 — JAN 2026</div>
+        <div class="tl-role">Intern @ Intel Unnati Industrial Training</div>
+        <div class="tl-desc">Created a CNN embedding pipeline, FAISS similarity search, and nearest-neighbor visual recommendations.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-date">OCT 2025 — DEC 2025</div>
+        <div class="tl-role">Intern @ Infosys SpringBoard (Virtual)</div>
+        <div class="tl-desc">Built a rule-based chatbot and TF-IDF / cosine-similarity content recommendation workflow.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-date">IIITDM KURNOOL, 2026</div>
+        <div class="tl-role">Winner — Datathon 2.0</div>
+        <div class="tl-desc">First place for an ML-powered warehouse execution system.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-date">2026</div>
+        <div class="tl-role">V3 National Hackathon</div>
+        <div class="tl-desc">Built a RAG-powered library management system.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-date">2026</div>
+        <div class="tl-role">AI Ignite & Devnovate Hackathon</div>
+        <div class="tl-desc">Developed scene-level semantic segmentation with SegFormer.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="section-num">05 / CONTACT</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="contact-inner">
+      <h2 class="contact-title" data-scatter-scroll>Have a challenging problem? Let's make something useful.</h2>
+      <a class="contact-email" href="mailto:iamsyedhasnain04@gmail.com">iamsyedhasnain04@gmail.com</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>© 2026 SYED HASNAIN PEERAN</span>
+  <div>
+    <a href="https://github.com/Syed8855" target="_blank">GITHUB</a>
+    <a href="https://www.linkedin.com/in/syed-hasnain-peeran/" target="_blank">LINKEDIN</a>
+  </div>
+</footer>
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+// split helper: wraps every character in a span, keeps spaces
+function splitChars(el){
+  const words = el.textContent.split(' ');
+  el.innerHTML = '';
+  words.forEach((word, wi) => {
+    const wordSpan = document.createElement('span');
+    wordSpan.style.display = 'inline-block';
+    [...word].forEach(ch => {
+      const c = document.createElement('span');
+      c.className = 'char';
+      c.textContent = ch;
+      wordSpan.appendChild(c);
+    });
+    el.appendChild(wordSpan);
+    if(wi < words.length - 1){
+      el.appendChild(document.createTextNode('\u00A0'));
+    }
+  });
+  return el.querySelectorAll('.char');
+}
+
+// INTRO NAME SCREEN: name scatters apart into the void as you scroll into the hero below
+document.querySelectorAll('.intro-name [data-scatter-name]').forEach((line) => {
+  const chars = splitChars(line);
+  gsap.to(chars, {
+    opacity: 0,
+    x: () => gsap.utils.random(-340, 340),
+    y: () => gsap.utils.random(-80, 320),
+    rotation: () => gsap.utils.random(-120, 120),
+    scale: () => gsap.utils.random(0.6, 1.3),
+    filter: 'blur(8px)',
+    ease: 'power1.in',
+    stagger: {each: 0.01, from: 'random'},
+    scrollTrigger: {
+      trigger: '.intro',
+      start: 'top top',
+      end: 'bottom top',
+      scrub: 0.6,
+    }
+  });
+});
+gsap.to('.intro-eyebrow', {
+  opacity: 0, y: -20, ease:'power1.in',
+  scrollTrigger:{ trigger:'.intro', start:'top top', end:'40% top', scrub:0.6 }
+});
+gsap.to('.intro-cue', {
+  opacity: 0, ease:'power1.in',
+  scrollTrigger:{ trigger:'.intro', start:'top top', end:'20% top', scrub:0.6 }
+});
+gsap.to('.intro-cue-fill', {
+  width:'100%', ease:'none',
+  scrollTrigger:{ trigger:'.intro', start:'top top', end:'bottom top', scrub:0.3 }
+});
+// pin the intro briefly so the scatter reads clearly before the hero takes over
+ScrollTrigger.create({
+  trigger:'.intro', start:'top top', end:'bottom top', pin:true, pinSpacing:true
+});
+
+// HERO: letters scatter apart as you scroll down, like they're dispersing into particles
+document.querySelectorAll('.scatter-title [data-scatter]').forEach((line, li) => {
+  const chars = splitChars(line);
+  gsap.set(chars, {opacity:1});
+  gsap.to(chars, {
+    opacity: 0,
+    x: () => gsap.utils.random(-260, 260),
+    y: () => gsap.utils.random(-160, 220),
+    rotation: () => gsap.utils.random(-90, 90),
+    filter: 'blur(6px)',
+    ease: 'power1.in',
+    stagger: {each: 0.012, from: 'random'},
+    scrollTrigger: {
+      trigger: '.hero',
+      start: 'top top',
+      end: '+=90%',
+      scrub: 0.6,
+    }
+  });
+});
+
+// SECTION HEADINGS: scatter INTO place as they enter viewport (reassembly)
+document.querySelectorAll('[data-scatter-scroll]').forEach(el => {
+  const chars = splitChars(el);
+  gsap.fromTo(chars,
+    {
+      opacity:0,
+      x: () => gsap.utils.random(-40, 40),
+      y: () => gsap.utils.random(-30, 60),
+      rotation: () => gsap.utils.random(-25, 25),
+      filter: 'blur(4px)'
+    },
+    {
+      opacity:1, x:0, y:0, rotation:0, filter:'blur(0px)',
+      ease:'power3.out',
+      stagger: {each:0.01, from:'start'},
+      scrollTrigger:{
+        trigger: el,
+        start: 'top 85%',
+        end: 'top 55%',
+        scrub: 0.5,
+      }
+    }
+  );
+});
+
+// Toolkit proficiency bars fill in on scroll
+document.querySelectorAll('.skill-row').forEach(row => {
+  const pct = row.dataset.skill;
+  const fill = row.querySelector('.skill-fill');
+  gsap.to(fill, {
+    width: pct + '%',
+    duration: 1.1,
+    ease: 'power3.out',
+    scrollTrigger: { trigger: row, start: 'top 90%' }
+  });
+});
+
+// Fade+rise for cards
+gsap.utils.toArray('.project, .edu-card, .tool-cell, .tl-item').forEach(card => {
+  gsap.fromTo(card, {opacity:0, y:24}, {
+    opacity:1, y:0, duration:0.7, ease:'power2.out',
+    scrollTrigger:{trigger:card, start:'top 90%'}
+  });
+});
+</script>
+
+</body>
+</html>

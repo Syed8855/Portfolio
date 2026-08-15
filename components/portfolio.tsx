@@ -1,15 +1,8 @@
 "use client";
 
-import type { ReactNode } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  motion,
-  useReducedMotion,
-  useScroll,
-  useSpring,
-  useTransform,
-} from "framer-motion";
 import {
   ArrowUpRight,
   Code2,
@@ -21,31 +14,26 @@ import {
   Send,
   Trophy,
 } from "lucide-react";
-import { achievements, experiences, projects, skills } from "@/data/portfolio";
+import { achievements, experiences, projects } from "@/data/portfolio";
 import { ContactForm } from "./contact-form";
 import { GithubHeatmap, LeetCodeHeatmap } from "./activity-heatmaps";
-import { useState, useEffect, useRef } from "react";
+import { IntroName } from "./IntroName";
+import { SectionHeading } from "./SectionHeading";
+import { ToolkitSkillBar } from "./ToolkitSkillBar";
+import { SplitScatter } from "./scroll/SplitScatter";
 
-/* ─── Animations ─────────────────────────────────────────────── */
-
-const ease = [0.16, 1, 0.3, 1];
-
-const reveal = {
-  hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease } },
-};
-
-const stagger = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.12 } },
-};
-
-/* ─── Shared Components ──────────────────────────────────────── */
+/* ─── Social links ───────────────────────────────────────────── */
 
 function Socials() {
   return (
-    <div className="socials" aria-label="Social links">
-      <a href="mailto:iamsyedhasnain04@gmail.com" aria-label="Email">
+    <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
+      <a
+        href="mailto:iamsyedhasnain04@gmail.com"
+        aria-label="Email"
+        style={{ color: "var(--ink-dim)", transition: "color 0.2s" }}
+        onMouseEnter={(e) => (e.currentTarget.style.color = "var(--ink)")}
+        onMouseLeave={(e) => (e.currentTarget.style.color = "var(--ink-dim)")}
+      >
         <Mail size={18} />
       </a>
       <a
@@ -53,6 +41,9 @@ function Socials() {
         target="_blank"
         rel="noreferrer"
         aria-label="GitHub"
+        style={{ color: "var(--ink-dim)", transition: "color 0.2s" }}
+        onMouseEnter={(e) => (e.currentTarget.style.color = "var(--ink)")}
+        onMouseLeave={(e) => (e.currentTarget.style.color = "var(--ink-dim)")}
       >
         <Github size={18} />
       </a>
@@ -61,6 +52,9 @@ function Socials() {
         target="_blank"
         rel="noreferrer"
         aria-label="LinkedIn"
+        style={{ color: "var(--ink-dim)", transition: "color 0.2s" }}
+        onMouseEnter={(e) => (e.currentTarget.style.color = "var(--ink)")}
+        onMouseLeave={(e) => (e.currentTarget.style.color = "var(--ink-dim)")}
       >
         <Linkedin size={18} />
       </a>
@@ -68,537 +62,1091 @@ function Socials() {
   );
 }
 
-function SectionBlock({
-  id,
-  kicker,
-  title,
-  children,
-}: {
-  id: string;
-  kicker: string;
-  title: string;
-  children: ReactNode;
-}) {
-  const reduced = useReducedMotion() ?? false;
-  return (
-    <motion.section
-      id={id}
-      className="section"
-      style={{ maxWidth: 1240, margin: "auto", padding: "112px 32px", borderTop: "1px solid var(--line)" }}
-      initial={reduced ? false : "hidden"}
-      whileInView={reduced ? undefined : "visible"}
-      viewport={{ once: true, amount: 0.12 }}
-      transition={{ duration: 0.6 }}
-      variants={reveal}
-    >
-      <p className="eyebrow" style={{ fontFamily: "var(--font-mono)", fontSize: 12, letterSpacing: "0.08em", color: "var(--muted)", marginBottom: 18, textTransform: "uppercase" }}>
-        {kicker}
-      </p>
-      <h2 style={{ fontSize: "clamp(34px, 4.5vw, 59px)", letterSpacing: "-0.055em", lineHeight: 1.06, marginBottom: 52 }}>
-        {title}
-      </h2>
-      {children}
-    </motion.section>
-  );
-}
-
-/* ─── Navbar ─────────────────────────────────────────────────── */
+/* ─── Navigation ─────────────────────────────────────────────── */
 
 function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 60);
+    const onScroll = () => setScrolled(window.scrollY > 40);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // lock body scroll when menu is open
-  useEffect(() => {
-    document.body.style.overflow = menuOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
-  }, [menuOpen]);
-
   return (
     <>
-      <header
+      <nav
         style={{
           position: "fixed",
           top: 0,
           left: 0,
           right: 0,
           zIndex: 100,
-          padding: "20px 32px",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          transition: "all 0.4s ease",
-          background: scrolled ? "rgba(5,5,5,0.75)" : "transparent",
-          backdropFilter: scrolled ? "blur(16px) saturate(180%)" : "none",
+          padding: "20px 48px",
+          backdropFilter: scrolled ? "blur(12px)" : "none",
+          background: scrolled
+            ? "linear-gradient(to bottom, rgba(6,11,20,0.92), rgba(6,11,20,0.75))"
+            : "linear-gradient(to bottom, rgba(6,11,20,0.85), transparent)",
           borderBottom: scrolled ? "1px solid var(--line)" : "1px solid transparent",
+          transition: "all 0.3s ease",
         }}
       >
-        <a href="#top" style={{ fontFamily: "var(--font-mono)", fontSize: 14, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+        <a
+          href="#top"
+          className="display"
+          style={{
+            fontWeight: 600,
+            letterSpacing: "0.02em",
+            fontSize: "15px",
+          }}
+        >
           SYED HASNAIN
         </a>
 
-        {/* desktop */}
-        <nav className="desktop-nav" aria-label="Primary" style={{ display: "flex", gap: 28, fontFamily: "var(--font-mono)", fontSize: 12, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--muted)" }}>
-          <a href="#work" style={{ transition: "color 0.2s" }}>Work</a>
-          <a href="#about" style={{ transition: "color 0.2s" }}>About</a>
-          <a href="#contact" style={{ transition: "color 0.2s" }}>Contact</a>
-        </nav>
-
-        {/* mobile toggle */}
-        <button
-          className="mobile-menu-btn"
-          onClick={() => setMenuOpen(true)}
-          aria-label="Open menu"
-          style={{ display: "none", background: "none", border: "none", color: "var(--ink)", cursor: "pointer", fontFamily: "var(--font-mono)", fontSize: 13, letterSpacing: "0.08em", textTransform: "uppercase" }}
-        >
-          MENU
-        </button>
-      </header>
-
-      {/* full-screen mobile overlay */}
-      {menuOpen && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
+        <div
+          className="navlinks"
           style={{
-            position: "fixed", inset: 0, background: "var(--bg-primary)", zIndex: 1000,
-            display: "flex", flexDirection: "column", padding: "20px 32px",
+            display: "flex",
+            gap: "36px",
+            fontSize: "13px",
+            color: "var(--ink-dim)",
           }}
         >
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 64 }}>
-            <span style={{ fontFamily: "var(--font-mono)", fontSize: 14, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" }}>SYED HASNAIN</span>
-            <button onClick={() => setMenuOpen(false)} style={{ background: "none", border: "none", color: "var(--ink)", cursor: "pointer", fontFamily: "var(--font-mono)", fontSize: 13, letterSpacing: "0.08em", textTransform: "uppercase" }}>
-              CLOSE
-            </button>
-          </div>
-          <nav style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-            {[
-              ["#work", "WORK"],
-              ["#about", "ABOUT"],
-              ["#competitive", "CODING"],
-              ["#opensource", "OPEN SOURCE"],
-              ["#contact", "CONTACT"],
-            ].map(([href, label]) => (
-              <a
-                key={href}
-                href={href}
-                onClick={() => setMenuOpen(false)}
-                style={{ fontSize: "clamp(32px, 8vw, 56px)", fontWeight: 600, letterSpacing: "-0.03em", lineHeight: 1.1, transition: "color 0.2s" }}
-              >
-                {label}
-              </a>
-            ))}
-          </nav>
-          <div style={{ marginTop: "auto", paddingBottom: 40 }}>
-            <Socials />
-          </div>
-        </motion.div>
-      )}
+          <a
+            href="#work"
+            style={{ letterSpacing: "0.04em", transition: "color 0.2s" }}
+          >
+            Work
+          </a>
+          <a
+            href="#about"
+            style={{ letterSpacing: "0.04em", transition: "color 0.2s" }}
+          >
+            About
+          </a>
+          <a
+            href="#toolkit"
+            style={{ letterSpacing: "0.04em", transition: "color 0.2s" }}
+          >
+            Toolkit
+          </a>
+          <a
+            href="#contact"
+            style={{ letterSpacing: "0.04em", transition: "color 0.2s" }}
+          >
+            Contact
+          </a>
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            fontFamily: "var(--font-mono)",
+            fontSize: "11px",
+            letterSpacing: "0.08em",
+            color: "var(--ink-dim)",
+            border: "1px solid var(--line)",
+            padding: "6px 14px",
+            borderRadius: "100px",
+            background: "rgba(11,21,38,0.4)",
+          }}
+        >
+          <span
+            style={{
+              width: "6px",
+              height: "6px",
+              borderRadius: "50%",
+              background: "#4ade80",
+              boxShadow: "0 0 8px #4ade80",
+            }}
+          />
+          AVAILABLE FOR COLLABORATION
+        </div>
+      </nav>
     </>
   );
 }
 
-/* ─── Hero with parallax scroll dispersal ────────────────────── */
+/* ─── Hero Section with Scatter ──────────────────────────────── */
 
 function Hero() {
-  const reduced = useReducedMotion() ?? false;
   const heroRef = useRef<HTMLElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ["start start", "end start"],
-  });
-
-  // Each line moves in a different direction as you scroll
-  const line1X = useTransform(scrollYProgress, [0, 1], [0, -200]);
-  const line2X = useTransform(scrollYProgress, [0, 1], [0, 150]);
-  const line3X = useTransform(scrollYProgress, [0, 1], [0, -100]);
-  const subtitleY = useTransform(scrollYProgress, [0, 1], [0, 80]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
-  const imageScale = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
-  const imageY = useTransform(scrollYProgress, [0, 1], [0, -60]);
 
   return (
     <section
       ref={heroRef}
       id="top"
       style={{
-        position: "relative",
         minHeight: "100vh",
         display: "flex",
-        alignItems: "center",
-        overflow: "hidden",
-        paddingTop: 100,
-        paddingBottom: 80,
+        flexDirection: "column",
+        justifyContent: "center",
+        padding: "140px 0 80px",
+        position: "relative",
       }}
     >
-      {/* subtle gradient orb */}
-      <div style={{
-        position: "absolute", top: "20%", left: "50%", transform: "translateX(-50%)",
-        width: "80vw", height: "80vw", maxWidth: 900, maxHeight: 900,
-        background: "radial-gradient(circle, var(--accent-glow) 0%, transparent 70%)",
-        filter: "blur(80px)", pointerEvents: "none", zIndex: 0,
-      }} />
-
-      {/* grain overlay */}
-      <div style={{
-        position: "absolute", inset: 0,
-        backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E\")",
-        backgroundRepeat: "repeat", opacity: 0.5, pointerEvents: "none", zIndex: 1,
-      }} />
-
-      <div style={{ position: "relative", zIndex: 2, width: "100%", maxWidth: 1440, margin: "0 auto", padding: "0 6vw", display: "grid", gridTemplateColumns: "1.2fr 0.8fr", alignItems: "center", gap: 40 }}>
-        {/* Left: Text */}
-        <motion.div
-          style={{ opacity: heroOpacity }}
-          initial={reduced ? false : "hidden"}
-          animate={reduced ? undefined : "visible"}
-          variants={stagger}
-        >
-          {/* Availability badge */}
-          <motion.div
-            variants={reveal}
-            style={{
-              display: "inline-flex", alignItems: "center", gap: 10,
-              fontFamily: "var(--font-mono)", fontSize: 12, letterSpacing: "0.08em",
-              color: "var(--accent)", textTransform: "uppercase", marginBottom: 32,
-            }}
-          >
-            <span style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--accent)", boxShadow: "0 0 12px var(--accent)" }} />
-            AVAILABLE FOR COLLABORATION
-          </motion.div>
-
-          {/* Main headline - each line moves differently on scroll */}
-          <div style={{ overflow: "visible" }}>
-            <motion.div variants={reveal} style={{ x: reduced ? 0 : line1X }}>
-              <span style={{ fontSize: "var(--text-hero)", fontWeight: 700, lineHeight: 0.95, letterSpacing: "-0.04em", display: "block", textTransform: "uppercase" }}>
-                BUILDING
-              </span>
-            </motion.div>
-            <motion.div variants={reveal} style={{ x: reduced ? 0 : line2X }}>
-              <span style={{ fontSize: "var(--text-hero)", fontWeight: 700, lineHeight: 0.95, letterSpacing: "-0.04em", display: "block", textTransform: "uppercase" }}>
-                PRACTICAL
-              </span>
-            </motion.div>
-            <motion.div variants={reveal} style={{ x: reduced ? 0 : line3X }}>
-              <span style={{
-                fontSize: "var(--text-hero)", fontWeight: 300, lineHeight: 0.95,
-                letterSpacing: "-0.04em", display: "block", textTransform: "uppercase",
-                fontStyle: "italic",
-                background: "linear-gradient(120deg, #fff, var(--accent))",
-                backgroundClip: "text", WebkitBackgroundClip: "text", color: "transparent",
-              }}>
-                INTELLIGENCE.
-              </span>
-            </motion.div>
-          </div>
-
-          {/* subtitle */}
-          <motion.p
-            variants={reveal}
-            style={{
-              y: reduced ? 0 : subtitleY,
-              color: "var(--muted)", fontSize: 18, maxWidth: 420,
-              marginTop: 32, marginBottom: 40, lineHeight: 1.6,
-            }}
-          >
-            for real-world systems.
-          </motion.p>
-
-          {/* Descriptor */}
-          <motion.p
-            variants={reveal}
-            style={{
-              fontFamily: "var(--font-mono)", fontSize: 12, letterSpacing: "0.06em",
-              color: "var(--muted)", textTransform: "uppercase", marginBottom: 32,
-            }}
-          >
-            ML ENGINEER &middot; BUILDER &middot; PROBLEM SOLVER
-          </motion.p>
-
-          {/* CTAs */}
-          <motion.div variants={reveal} style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-            <a href="#work" className="btn btn-primary">
-              Explore Work <ArrowUpRight size={16} />
-            </a>
-            <a href="/documents/syed-hasnain-peeran-resume.pdf" download className="btn">
-              <Download size={16} /> Resume
-            </a>
-          </motion.div>
-        </motion.div>
-
-        {/* Right: Character Visual */}
-        <motion.div
+      <div className="wrap">
+        <div
+          className="mono"
           style={{
-            position: "relative", alignSelf: "end",
-            scale: reduced ? 1 : imageScale,
-            y: reduced ? 0 : imageY,
-            opacity: heroOpacity,
+            fontSize: "12px",
+            letterSpacing: "0.18em",
+            color: "var(--accent-2)",
+            marginBottom: "28px",
+            display: "flex",
+            alignItems: "center",
+            gap: "10px",
+            textTransform: "uppercase",
           }}
-          initial={reduced ? { opacity: 1 } : { opacity: 0, scale: 0.92 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.3, duration: 0.8, ease }}
         >
-          <div style={{
-            position: "absolute", bottom: "10%", left: "50%", transform: "translateX(-50%)",
-            width: "140%", height: "60%",
-            background: "radial-gradient(ellipse, var(--accent-glow) 0%, transparent 70%)",
-            filter: "blur(60px)", pointerEvents: "none",
-          }} />
-          <Image
-            src="/images/syed-ml-engineer.png"
-            alt="Stylized ML engineer character representing Syed Hasnain Peeran"
-            width={1024}
-            height={1492}
-            priority
+          <span
             style={{
-              width: "100%", height: "auto", maxHeight: "70vh",
-              objectFit: "contain",
-              filter: "drop-shadow(0 30px 60px rgba(0,0,0,0.5))",
-              position: "relative", zIndex: 1,
+              width: "24px",
+              height: "1px",
+              background: "var(--accent-2)",
+              display: "inline-block",
             }}
           />
-          <div style={{
-            position: "absolute", right: 0, bottom: "22%",
-            padding: "10px 14px", border: "1px solid var(--line)",
-            borderRadius: 8, background: "rgba(5,5,5,0.8)",
-            backdropFilter: "blur(12px)",
-            fontFamily: "var(--font-mono)", fontSize: 11, color: "#c9daff",
-          }}>
-            ML engineer<br /><span style={{ color: "#45d984" }}>in progress</span>
-          </div>
-        </motion.div>
+          ML ENGINEER · BUILDER · PROBLEM SOLVER
+        </div>
+
+        <h1
+          className="display"
+          style={{
+            fontSize: "clamp(48px, 9vw, 118px)",
+            fontWeight: 700,
+            lineHeight: 0.96,
+            letterSpacing: "-0.02em",
+          }}
+        >
+          <span style={{ display: "block" }}>
+            <SplitScatter
+              text="BUILDING"
+              as="span"
+              mode="scatter-out"
+              triggerRef={heroRef}
+              start="top top"
+              end="+=90%"
+              scrub={0.6}
+            />
+          </span>
+          <span style={{ display: "block" }}>
+            <SplitScatter
+              text="PRACTICAL"
+              as="span"
+              mode="scatter-out"
+              triggerRef={heroRef}
+              start="top top"
+              end="+=90%"
+              scrub={0.6}
+            />{" "}
+            <span
+              style={{
+                fontStyle: "italic",
+                fontWeight: 600,
+                color: "var(--accent)",
+              }}
+            >
+              <SplitScatter
+                text="intelligence."
+                as="span"
+                mode="scatter-out"
+                triggerRef={heroRef}
+                start="top top"
+                end="+=90%"
+                scrub={0.6}
+              />
+            </span>
+          </span>
+        </h1>
+
+        <p
+          style={{
+            marginTop: "34px",
+            fontSize: "17px",
+            color: "var(--ink-dim)",
+            maxWidth: "520px",
+            lineHeight: 1.6,
+          }}
+        >
+          for real-world systems — from data preparation and model development
+          to retrieval and the product layer around the model.
+        </p>
+
+        <div style={{ display: "flex", gap: "16px", marginTop: "44px" }}>
+          <a href="#work" className="btn btn-primary">
+            Explore Work →
+          </a>
+          <a
+            href="/documents/syed-hasnain-peeran-resume.pdf"
+            download
+            className="btn btn-ghost"
+          >
+            <Download size={15} /> Resume
+          </a>
+        </div>
+      </div>
+
+      <div
+        className="mono"
+        style={{
+          position: "absolute",
+          bottom: "40px",
+          left: 0,
+          right: 0,
+          display: "flex",
+          justifyContent: "space-between",
+          fontSize: "11px",
+          color: "var(--ink-dim)",
+          letterSpacing: "0.06em",
+          maxWidth: "var(--container-max)",
+          margin: "0 auto",
+          padding: "0 48px",
+        }}
+      >
+        <span>KURNOOL, INDIA</span>
+        <span>01 / INTRO</span>
       </div>
     </section>
   );
 }
 
-/* ─── Project Card ───────────────────────────────────────────── */
-
-function ProjectCard({
-  project,
-  index,
-}: {
-  project: (typeof projects)[number];
-  index: number;
-}) {
-  return (
-    <article className="project-card">
-      <div className="project-card-top">
-        <span className="project-index">{String(index + 1).padStart(2, "0")}</span>
-        <div className="project-icon">
-          {project.featured ? <Trophy size={18} /> : <Code2 size={18} />}
-        </div>
-      </div>
-      <p className="project-category">{project.category}</p>
-      <h3>{project.name}</h3>
-      <p className="project-summary">{project.description}</p>
-      <div className="tags">
-        {project.stack.map((s) => (
-          <span key={s}>{s}</span>
-        ))}
-      </div>
-      <footer>
-        <p>{project.outcome}</p>
-        <div className="project-links">
-          {project.slug === "warehouse-execution-system" && (
-            <a
-              href="https://wesoptimizer.streamlit.app/"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Live demo <ArrowUpRight size={15} />
-            </a>
-          )}
-          <Link href={`/projects/${project.slug}`}>
-            Project story <ArrowUpRight size={15} />
-          </Link>
-        </div>
-      </footer>
-    </article>
-  );
-}
-
-/* ─── Main Portfolio ─────────────────────────────────────────── */
+/* ─── Main Portfolio Component ───────────────────────────────── */
 
 export function Portfolio() {
-  const reduced = useReducedMotion() ?? false;
-  const { scrollYProgress } = useScroll();
-  const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 25 });
-
   return (
     <>
-      <motion.div
-        className="progress"
-        style={{
-          scaleX,
-          background: "linear-gradient(90deg, var(--accent), #6C63FF)",
-          height: 3,
-          position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 200,
-          transformOrigin: "left",
-        }}
-      />
-
       <Navbar />
 
       <main>
+        {/* Pinned 100vh Intro Name Screen */}
+        <IntroName />
+
+        {/* Hero Section */}
         <Hero />
 
-        {/* About */}
-        <SectionBlock id="about" kicker="01 / ABOUT" title="Curious by nature. Grounded in outcomes.">
-          <div className="two-col">
-            <div>
-              <p>
-                I enjoy moving from an ambiguous problem to a system people can
-                actually use. My work spans data preparation, model development,
-                retrieval, and the product layer around the model.
-              </p>
-              <div className="stat-row">
-                <div>
-                  <strong>8.74</strong>
-                  <span>CGPA / 10</span>
-                </div>
-                <div>
-                  <strong>2023</strong>
-                  <span>Started B.Tech</span>
-                </div>
-                <div>
-                  <strong>2026</strong>
-                  <span>Datathon winner</span>
-                </div>
-              </div>
-            </div>
-            <div className="education-card">
-              <GraduationCap size={20} />
+        {/* 01 / ABOUT */}
+        <section id="about">
+          <div className="wrap">
+            <SectionHeading
+              num="01 / ABOUT"
+              title="Curious by nature. Grounded in outcomes."
+            />
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1.1fr 0.9fr",
+                gap: "64px",
+                alignItems: "start",
+                marginTop: "48px",
+              }}
+            >
               <div>
-                <strong>B.Tech, Computer Science &amp; Engineering (Machine Learning)</strong>
-                <p>G. Pulla Reddy Engineering College, Kurnool - Aug 2023 to Present</p>
+                <p
+                  style={{
+                    color: "var(--ink-dim)",
+                    fontSize: "16px",
+                    lineHeight: 1.75,
+                    maxWidth: "520px",
+                  }}
+                >
+                  I enjoy moving from an ambiguous problem to a system people
+                  can actually use. My work spans data preparation, model
+                  development, retrieval, and the product layer around the
+                  model.
+                </p>
+
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "40px",
+                    marginTop: "40px",
+                  }}
+                >
+                  <div>
+                    <div
+                      className="display"
+                      style={{
+                        fontSize: "34px",
+                        fontWeight: 700,
+                        color: "var(--accent-2)",
+                      }}
+                    >
+                      8.74
+                    </div>
+                    <div
+                      className="mono"
+                      style={{
+                        fontSize: "11px",
+                        color: "var(--ink-dim)",
+                        marginTop: "4px",
+                      }}
+                    >
+                      CGPA / 10
+                    </div>
+                  </div>
+                  <div>
+                    <div
+                      className="display"
+                      style={{
+                        fontSize: "34px",
+                        fontWeight: 700,
+                        color: "var(--accent-2)",
+                      }}
+                    >
+                      2023
+                    </div>
+                    <div
+                      className="mono"
+                      style={{
+                        fontSize: "11px",
+                        color: "var(--ink-dim)",
+                        marginTop: "4px",
+                      }}
+                    >
+                      STARTED B.TECH
+                    </div>
+                  </div>
+                  <div>
+                    <div
+                      className="display"
+                      style={{
+                        fontSize: "34px",
+                        fontWeight: 700,
+                        color: "var(--accent-2)",
+                      }}
+                    >
+                      2026
+                    </div>
+                    <div
+                      className="mono"
+                      style={{
+                        fontSize: "11px",
+                        color: "var(--ink-dim)",
+                        marginTop: "4px",
+                      }}
+                    >
+                      DATATHON WINNER
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                style={{
+                  background: "var(--surface)",
+                  border: "1px solid var(--line)",
+                  borderRadius: "var(--radius)",
+                  padding: "28px",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "12px",
+                    marginBottom: "12px",
+                  }}
+                >
+                  <GraduationCap size={22} color="var(--accent)" />
+                  <div style={{ fontWeight: 600, fontSize: "15px" }}>
+                    B.Tech, Computer Science & Engineering (Machine Learning)
+                  </div>
+                </div>
+                <div
+                  style={{
+                    color: "var(--ink-dim)",
+                    fontSize: "13px",
+                    lineHeight: 1.6,
+                    paddingLeft: "34px",
+                  }}
+                >
+                  G. Pulla Reddy Engineering College, Kurnool
+                  <br />
+                  Aug 2023 — Present
+                </div>
               </div>
             </div>
           </div>
-        </SectionBlock>
+        </section>
 
-        {/* Work */}
-        <SectionBlock id="work" kicker="02 / SELECTED WORK" title="Applied ML, not just notebooks.">
-          <div className="project-grid">
-            {projects.map((project, i) => (
-              <ProjectCard key={project.slug} project={project} index={i} />
-            ))}
+        {/* 02 / SELECTED WORK */}
+        <section id="work">
+          <div className="wrap">
+            <SectionHeading
+              num="02 / SELECTED WORK"
+              title="Applied ML, not just notebooks."
+            />
+
+            <div style={{ marginTop: "40px" }}>
+              {projects.map((project, i) => (
+                <article
+                  key={project.slug}
+                  style={{
+                    borderTop: "1px solid var(--line)",
+                    borderBottom:
+                      i === projects.length - 1
+                        ? "1px solid var(--line)"
+                        : undefined,
+                    padding: "40px 0",
+                    display: "grid",
+                    gridTemplateColumns: "80px 1fr 220px",
+                    gap: "32px",
+                    alignItems: "start",
+                    transition: "background 0.3s",
+                  }}
+                >
+                  <div
+                    className="mono"
+                    style={{ color: "var(--ink-dim)", fontSize: "13px" }}
+                  >
+                    0{i + 1}
+                  </div>
+
+                  <div>
+                    <span
+                      className="mono"
+                      style={{
+                        fontSize: "10px",
+                        color: "var(--accent-2)",
+                        letterSpacing: "0.08em",
+                        marginBottom: "10px",
+                        display: "block",
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      {project.category}
+                    </span>
+
+                    <h3
+                      className="display"
+                      style={{
+                        fontSize: "24px",
+                        fontWeight: 600,
+                        marginBottom: "10px",
+                      }}
+                    >
+                      {project.name}
+                    </h3>
+
+                    <p
+                      style={{
+                        color: "var(--ink-dim)",
+                        fontSize: "14.5px",
+                        lineHeight: 1.6,
+                        maxWidth: "480px",
+                      }}
+                    >
+                      {project.description}
+                    </p>
+
+                    <div
+                      style={{
+                        display: "flex",
+                        flexWrap: "wrap",
+                        gap: "8px",
+                        marginTop: "16px",
+                      }}
+                    >
+                      {project.stack.map((item) => (
+                        <span key={item} className="chip">
+                          {item}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "12px",
+                      alignItems: "flex-end",
+                    }}
+                  >
+                    {project.slug === "warehouse-execution-system" && (
+                      <a
+                        href="https://wesoptimizer.streamlit.app/"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="mono"
+                        style={{
+                          fontSize: "12px",
+                          color: "var(--ink-dim)",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "6px",
+                        }}
+                      >
+                        Live demo <ArrowUpRight size={13} />
+                      </a>
+                    )}
+                    <Link
+                      href={`/projects/${project.slug}`}
+                      className="mono"
+                      style={{
+                        fontSize: "12px",
+                        color: "var(--accent-2)",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "6px",
+                      }}
+                    >
+                      Project story →
+                    </Link>
+                  </div>
+                </article>
+              ))}
+            </div>
           </div>
-        </SectionBlock>
+        </section>
 
-        {/* Toolkit */}
-        <SectionBlock id="skills" kicker="03 / TOOLKIT" title="A versatile technical foundation.">
-          <div className="skill-grid">
-            {skills.map(([label, items]) => (
-              <article key={label} className="skill-card">
-                <h3>{label}</h3>
-                <div>
-                  {items.map((item) => (
-                    <span key={item}>{item}</span>
-                  ))}
+        {/* 03 / TOOLKIT */}
+        <section id="toolkit">
+          <div className="wrap">
+            <SectionHeading
+              num="03 / TOOLKIT"
+              title="A versatile technical foundation."
+            />
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(4, 1fr)",
+                gap: "1px",
+                background: "var(--line)",
+                border: "1px solid var(--line)",
+                borderRadius: "var(--radius)",
+                overflow: "hidden",
+                marginTop: "40px",
+              }}
+            >
+              {/* Languages */}
+              <div style={{ background: "var(--bg-2)", padding: "28px 24px" }}>
+                <div
+                  className="mono"
+                  style={{
+                    fontSize: "11px",
+                    color: "var(--accent)",
+                    letterSpacing: "0.08em",
+                    marginBottom: "18px",
+                  }}
+                >
+                  LANGUAGES
                 </div>
-              </article>
-            ))}
-          </div>
-        </SectionBlock>
+                <ToolkitSkillBar name="Python" level={92} />
+                <ToolkitSkillBar name="SQL" level={78} />
+              </div>
 
-        {/* Competitive */}
-        <SectionBlock id="competitive" kicker="04 / COMPETITIVE PROGRAMMING" title="Learning through deliberate practice.">
-          <div className="activity-grid">
-            <LeetCodeHeatmap />
-            <div className="activity-card profile-card">
-              <div className="activity-title">
-                <Send size={19} />
-                <div>
-                  <h3>SmartInterviews</h3>
+              {/* AI / ML */}
+              <div style={{ background: "var(--bg-2)", padding: "28px 24px" }}>
+                <div
+                  className="mono"
+                  style={{
+                    fontSize: "11px",
+                    color: "var(--accent)",
+                    letterSpacing: "0.08em",
+                    marginBottom: "18px",
+                  }}
+                >
+                  AI / ML
+                </div>
+                <ToolkitSkillBar name="Machine Learning" level={88} />
+                <ToolkitSkillBar name="RAG" level={72} />
+                <ToolkitSkillBar name="Computer Vision" level={75} />
+                <ToolkitSkillBar name="LLM Fundamentals" level={65} />
+              </div>
+
+              {/* WEB */}
+              <div style={{ background: "var(--bg-2)", padding: "28px 24px" }}>
+                <div
+                  className="mono"
+                  style={{
+                    fontSize: "11px",
+                    color: "var(--accent)",
+                    letterSpacing: "0.08em",
+                    marginBottom: "18px",
+                  }}
+                >
+                  WEB
+                </div>
+                <ToolkitSkillBar name="Flask / Django" level={60} />
+                <ToolkitSkillBar name="React" level={55} />
+                <ToolkitSkillBar name="Node.js / Express" level={50} />
+              </div>
+
+              {/* TOOLS */}
+              <div style={{ background: "var(--bg-2)", padding: "28px 24px" }}>
+                <div
+                  className="mono"
+                  style={{
+                    fontSize: "11px",
+                    color: "var(--accent)",
+                    letterSpacing: "0.08em",
+                    marginBottom: "18px",
+                  }}
+                >
+                  TOOLS
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: "8px",
+                  }}
+                >
+                  {["Git / GitHub", "Linux", "Jupyter", "VS Code", "FAISS"].map(
+                    (t) => (
+                      <span key={t} className="chip">
+                        {t}
+                      </span>
+                    )
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* 04 / COMPETITIVE PROGRAMMING */}
+        <section id="competitive">
+          <div className="wrap">
+            <SectionHeading
+              num="04 / PROBLEM SOLVING"
+              title="Learning through deliberate practice."
+            />
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1.1fr 0.9fr",
+                gap: "32px",
+                marginTop: "40px",
+              }}
+            >
+              <div
+                style={{
+                  background: "var(--surface)",
+                  border: "1px solid var(--line)",
+                  borderRadius: "var(--radius)",
+                  padding: "28px",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: "20px",
+                  }}
+                >
+                  <div
+                    className="display"
+                    style={{ fontSize: "18px", fontWeight: 600 }}
+                  >
+                    LeetCode Submissions
+                  </div>
                   <a
-                    href="https://smartinterviews.in/profile/syed_hasnain33"
+                    href="https://leetcode.com/u/iamhasnain04/"
                     target="_blank"
                     rel="noreferrer"
+                    className="mono"
+                    style={{
+                      fontSize: "11px",
+                      color: "var(--accent-2)",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "4px",
+                    }}
                   >
-                    View problem-solving profile <ArrowUpRight size={13} />
+                    iamhasnain04 <ArrowUpRight size={12} />
                   </a>
                 </div>
+                <LeetCodeHeatmap />
               </div>
-              <p>
-                Practice, contests, and structured problem solving are part of how I
-                sharpen core data-structures and algorithmic thinking.
-              </p>
-              <div className="rank-mini">
-                <strong>#6,830</strong>
-                <span>Overall score: 27,755</span>
+
+              <div
+                style={{
+                  background: "var(--surface)",
+                  border: "1px solid var(--line)",
+                  borderRadius: "var(--radius)",
+                  padding: "28px",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                }}
+              >
+                <div>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      marginBottom: "16px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "10px",
+                      }}
+                    >
+                      <Send size={18} color="var(--accent)" />
+                      <div
+                        className="display"
+                        style={{ fontSize: "18px", fontWeight: 600 }}
+                      >
+                        SmartInterviews
+                      </div>
+                    </div>
+                    <a
+                      href="https://smartinterviews.in/profile/syed_hasnain33"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="mono"
+                      style={{
+                        fontSize: "11px",
+                        color: "var(--accent-2)",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "4px",
+                      }}
+                    >
+                      Profile <ArrowUpRight size={12} />
+                    </a>
+                  </div>
+                  <p
+                    style={{
+                      fontSize: "14px",
+                      color: "var(--ink-dim)",
+                      lineHeight: 1.6,
+                    }}
+                  >
+                    Practice, contests, and structured problem solving are part of
+                    how I sharpen core data-structures and algorithmic thinking.
+                  </p>
+                </div>
+
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    borderTop: "1px solid var(--line)",
+                    paddingTop: "18px",
+                    marginTop: "24px",
+                  }}
+                >
+                  <div>
+                    <div
+                      className="display"
+                      style={{
+                        fontSize: "24px",
+                        fontWeight: 700,
+                        color: "var(--accent-2)",
+                      }}
+                    >
+                      #6,830
+                    </div>
+                    <div
+                      className="mono"
+                      style={{ fontSize: "11px", color: "var(--ink-dim)" }}
+                    >
+                      GLOBAL RANK
+                    </div>
+                  </div>
+                  <div style={{ textAlign: "right" }}>
+                    <div
+                      className="display"
+                      style={{ fontSize: "24px", fontWeight: 700 }}
+                    >
+                      27,755
+                    </div>
+                    <div
+                      className="mono"
+                      style={{ fontSize: "11px", color: "var(--ink-dim)" }}
+                    >
+                      OVERALL SCORE
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </SectionBlock>
+        </section>
 
-        {/* Open Source */}
-        <SectionBlock id="opensource" kicker="05 / OPEN SOURCE" title="Shipping in public.">
-          <div className="activity-grid">
-            <GithubHeatmap />
+        {/* 05 / OPEN SOURCE */}
+        <section id="opensource">
+          <div className="wrap">
+            <SectionHeading
+              num="05 / OPEN SOURCE"
+              title="Shipping in public."
+            />
+
+            <div
+              style={{
+                background: "var(--surface)",
+                border: "1px solid var(--line)",
+                borderRadius: "var(--radius)",
+                padding: "28px",
+                marginTop: "40px",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: "20px",
+                }}
+              >
+                <div
+                  className="display"
+                  style={{ fontSize: "18px", fontWeight: 600 }}
+                >
+                  GitHub Contributions
+                </div>
+                <a
+                  href="https://github.com/Syed8855"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mono"
+                  style={{
+                    fontSize: "11px",
+                    color: "var(--accent-2)",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "4px",
+                  }}
+                >
+                  github.com/Syed8855 <ArrowUpRight size={12} />
+                </a>
+              </div>
+              <GithubHeatmap />
+            </div>
           </div>
-        </SectionBlock>
+        </section>
 
-        {/* Journey */}
-        <SectionBlock id="journey" kicker="06 / JOURNEY" title="Learning in public, building under pressure.">
-          <div className="journey-grid">
-            <article className="timeline-card">
-              <h3>Experience</h3>
-              {experiences.map((exp) => (
-                <div key={`${exp.company}-${exp.date}`} className="timeline-item">
-                  <p>{exp.date}</p>
-                  <strong>
+        {/* 06 / JOURNEY */}
+        <section id="journey">
+          <div className="wrap">
+            <SectionHeading
+              num="06 / JOURNEY"
+              title="Learning in public, building under pressure."
+            />
+
+            <div
+              style={{
+                borderLeft: "1px solid var(--line)",
+                paddingLeft: "32px",
+                display: "flex",
+                flexDirection: "column",
+                gap: "36px",
+                marginTop: "44px",
+                marginLeft: "8px",
+              }}
+            >
+              {experiences.map((exp, i) => (
+                <div key={i} style={{ position: "relative" }}>
+                  <span
+                    style={{
+                      position: "absolute",
+                      left: "-37px",
+                      top: "6px",
+                      width: "9px",
+                      height: "9px",
+                      borderRadius: "50%",
+                      background: "var(--accent)",
+                      boxShadow: "0 0 0 4px rgba(79,140,255,0.15)",
+                    }}
+                  />
+                  <div
+                    className="mono"
+                    style={{
+                      fontSize: "11.5px",
+                      color: "var(--accent-2)",
+                      marginBottom: "6px",
+                    }}
+                  >
+                    {exp.date.toUpperCase()}
+                  </div>
+                  <div
+                    style={{
+                      fontWeight: 600,
+                      fontSize: "16px",
+                      marginBottom: "4px",
+                    }}
+                  >
                     {exp.role} @ {exp.company}
-                  </strong>
-                  <span>{exp.detail}</span>
+                  </div>
+                  <p
+                    style={{
+                      color: "var(--ink-dim)",
+                      fontSize: "14px",
+                      lineHeight: 1.6,
+                      maxWidth: "520px",
+                    }}
+                  >
+                    {exp.detail}
+                  </p>
                 </div>
               ))}
-            </article>
-            <article className="timeline-card">
-              <h3>Recognition</h3>
-              {achievements.map((ach) => (
-                <div key={ach.title} className="timeline-item">
-                  <p>{ach.meta}</p>
-                  <strong>{ach.title}</strong>
-                  <span>{ach.detail}</span>
-                </div>
-              ))}
-            </article>
-          </div>
-        </SectionBlock>
 
-        {/* Contact */}
-        <SectionBlock id="contact" kicker="07 / CONTACT" title="Have a challenging problem?">
-          <div className="contact-grid">
-            <div className="contact-copy">
-              <p>
-                Let&apos;s make something useful. I&apos;m always interested in
-                ML, AI, and full-stack collaborations.
-              </p>
-              <a href="mailto:iamsyedhasnain04@gmail.com" className="email-link">
-                iamsyedhasnain04@gmail.com <ArrowUpRight size={16} />
-              </a>
+              {achievements.map((ach, i) => (
+                <div key={i} style={{ position: "relative" }}>
+                  <span
+                    style={{
+                      position: "absolute",
+                      left: "-37px",
+                      top: "6px",
+                      width: "9px",
+                      height: "9px",
+                      borderRadius: "50%",
+                      background: "var(--warm)",
+                      boxShadow: "0 0 0 4px rgba(255,180,84,0.15)",
+                    }}
+                  />
+                  <div
+                    className="mono"
+                    style={{
+                      fontSize: "11.5px",
+                      color: "var(--warm)",
+                      marginBottom: "6px",
+                    }}
+                  >
+                    {ach.meta.toUpperCase()}
+                  </div>
+                  <div
+                    style={{
+                      fontWeight: 600,
+                      fontSize: "16px",
+                      marginBottom: "4px",
+                    }}
+                  >
+                    {ach.title}
+                  </div>
+                  <p
+                    style={{
+                      color: "var(--ink-dim)",
+                      fontSize: "14px",
+                      lineHeight: 1.6,
+                      maxWidth: "520px",
+                    }}
+                  >
+                    {ach.detail}
+                  </p>
+                </div>
+              ))}
             </div>
-            <ContactForm />
           </div>
-        </SectionBlock>
+        </section>
+
+        {/* 07 / CONTACT */}
+        <section id="contact">
+          <div className="wrap">
+            <SectionHeading
+              num="07 / CONTACT"
+              title="Have a challenging problem? Let's make something useful."
+            />
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "48px",
+                alignItems: "start",
+                marginTop: "40px",
+              }}
+            >
+              <div>
+                <p
+                  style={{
+                    color: "var(--ink-dim)",
+                    fontSize: "16px",
+                    lineHeight: 1.7,
+                    marginBottom: "24px",
+                  }}
+                >
+                  I&apos;m always interested in ML, AI, and full-stack
+                  collaborations. Whether you have an ambiguous problem or a
+                  concrete system in mind, let&apos;s connect.
+                </p>
+
+                <a
+                  href="mailto:iamsyedhasnain04@gmail.com"
+                  className="mono"
+                  style={{
+                    color: "var(--accent-2)",
+                    fontSize: "15px",
+                    borderBottom: "1px solid var(--line)",
+                    paddingBottom: "4px",
+                    display: "inline-block",
+                  }}
+                >
+                  iamsyedhasnain04@gmail.com
+                </a>
+              </div>
+
+              <div
+                style={{
+                  background: "var(--surface)",
+                  border: "1px solid var(--line)",
+                  borderRadius: "var(--radius)",
+                  padding: "28px",
+                }}
+              >
+                <ContactForm />
+              </div>
+            </div>
+          </div>
+        </section>
       </main>
 
-      <footer className="site-footer">
-        <div>Copyright 2026 Syed Hasnain Peeran</div>
-        <Socials />
-        <a href="#top">Back to top</a>
+      <footer
+        style={{
+          borderTop: "1px solid var(--line)",
+          marginTop: "100px",
+          padding: "32px 48px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          fontFamily: "var(--font-mono)",
+          fontSize: "11.5px",
+          color: "var(--ink-dim)",
+          position: "relative",
+          zIndex: 1,
+        }}
+      >
+        <span>© 2026 SYED HASNAIN PEERAN</span>
+        <div style={{ display: "flex", gap: "24px" }}>
+          <a
+            href="https://github.com/Syed8855"
+            target="_blank"
+            rel="noreferrer"
+            style={{ color: "var(--ink-dim)" }}
+          >
+            GITHUB
+          </a>
+          <a
+            href="https://www.linkedin.com/in/syed-hasnain-peeran/"
+            target="_blank"
+            rel="noreferrer"
+            style={{ color: "var(--ink-dim)" }}
+          >
+            LINKEDIN
+          </a>
+          <a href="#top" style={{ color: "var(--accent-2)" }}>
+            BACK TO TOP ↑
+          </a>
+        </div>
       </footer>
     </>
   );
