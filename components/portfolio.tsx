@@ -1,12 +1,11 @@
 "use client";
 
-import React, { useRef, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowUpRight,
   Code2,
-  Download,
   Github,
   GraduationCap,
   Linkedin,
@@ -17,10 +16,9 @@ import {
 import { achievements, experiences, projects } from "@/data/portfolio";
 import { ContactForm } from "./contact-form";
 import { GithubHeatmap, LeetCodeHeatmap } from "./activity-heatmaps";
-import { IntroName } from "./IntroName";
 import { SectionHeading } from "./SectionHeading";
 import { ToolkitSkillBar } from "./ToolkitSkillBar";
-import { SplitScatter } from "./scroll/SplitScatter";
+import HeroSection from "./HeroSection";
 
 /* ─── Social links ───────────────────────────────────────────── */
 
@@ -173,150 +171,6 @@ function Navbar() {
   );
 }
 
-/* ─── Hero Section with Scatter ──────────────────────────────── */
-
-function Hero() {
-  const heroRef = useRef<HTMLElement>(null);
-
-  return (
-    <section
-      ref={heroRef}
-      id="top"
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        padding: "140px 0 80px",
-        position: "relative",
-      }}
-    >
-      <div className="wrap">
-        <div
-          className="mono"
-          style={{
-            fontSize: "12px",
-            letterSpacing: "0.18em",
-            color: "var(--accent-2)",
-            marginBottom: "28px",
-            display: "flex",
-            alignItems: "center",
-            gap: "10px",
-            textTransform: "uppercase",
-          }}
-        >
-          <span
-            style={{
-              width: "24px",
-              height: "1px",
-              background: "var(--accent-2)",
-              display: "inline-block",
-            }}
-          />
-          ML ENGINEER · BUILDER · PROBLEM SOLVER
-        </div>
-
-        <h1
-          className="display"
-          style={{
-            fontSize: "clamp(48px, 9vw, 118px)",
-            fontWeight: 700,
-            lineHeight: 0.96,
-            letterSpacing: "-0.02em",
-          }}
-        >
-          <span style={{ display: "block" }}>
-            <SplitScatter
-              text="BUILDING"
-              as="span"
-              mode="scatter-out"
-              triggerRef={heroRef}
-              start="top top"
-              end="+=90%"
-              scrub={0.6}
-            />
-          </span>
-          <span style={{ display: "block" }}>
-            <SplitScatter
-              text="PRACTICAL"
-              as="span"
-              mode="scatter-out"
-              triggerRef={heroRef}
-              start="top top"
-              end="+=90%"
-              scrub={0.6}
-            />{" "}
-            <span
-              style={{
-                fontStyle: "italic",
-                fontWeight: 600,
-                color: "var(--accent)",
-              }}
-            >
-              <SplitScatter
-                text="intelligence."
-                as="span"
-                mode="scatter-out"
-                triggerRef={heroRef}
-                start="top top"
-                end="+=90%"
-                scrub={0.6}
-              />
-            </span>
-          </span>
-        </h1>
-
-        <p
-          style={{
-            marginTop: "34px",
-            fontSize: "17px",
-            color: "var(--ink-dim)",
-            maxWidth: "520px",
-            lineHeight: 1.6,
-          }}
-        >
-          for real-world systems — from data preparation and model development
-          to retrieval and the product layer around the model.
-        </p>
-
-        <div style={{ display: "flex", gap: "16px", marginTop: "44px" }}>
-          <a href="#work" className="btn btn-primary">
-            Explore Work →
-          </a>
-          <a
-            href="/documents/syed-hasnain-peeran-resume.pdf"
-            download
-            className="btn btn-ghost"
-          >
-            <Download size={15} /> Resume
-          </a>
-        </div>
-      </div>
-
-      <div
-        className="mono"
-        style={{
-          position: "absolute",
-          bottom: "40px",
-          left: 0,
-          right: 0,
-          display: "flex",
-          justifyContent: "space-between",
-          fontSize: "11px",
-          color: "var(--ink-dim)",
-          letterSpacing: "0.06em",
-          maxWidth: "var(--container-max)",
-          margin: "0 auto",
-          padding: "0 48px",
-        }}
-      >
-        <span>KURNOOL, INDIA</span>
-        <span>01 / INTRO</span>
-      </div>
-    </section>
-  );
-}
-
 /* ─── Main Portfolio Component ───────────────────────────────── */
 
 export function Portfolio() {
@@ -325,11 +179,8 @@ export function Portfolio() {
       <Navbar />
 
       <main>
-        {/* Pinned 100vh Intro Name Screen */}
-        <IntroName />
-
         {/* Hero Section */}
-        <Hero />
+        <HeroSection />
 
         {/* 01 / ABOUT */}
         <section id="about">
