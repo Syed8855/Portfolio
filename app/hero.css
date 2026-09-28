@@ -14,8 +14,8 @@
   inset: 0;
   pointer-events: none;
   background:
-    radial-gradient(ellipse 45% 55% at 75% 45%, rgba(122, 162, 214, 0.08) 0%, transparent 60%),
-    radial-gradient(ellipse 30% 35% at 20% 80%, rgba(122, 162, 214, 0.05) 0%, transparent 55%);
+    radial-gradient(ellipse 65% 65% at 75% 50%, rgba(122, 162, 214, 0.10) 0%, transparent 65%),
+    radial-gradient(ellipse 45% 45% at 20% 75%, rgba(122, 162, 214, 0.06) 0%, transparent 60%);
 }
 
 .hero-body {
@@ -23,13 +23,13 @@
   z-index: 10;
   flex: 1;
   display: grid;
-  grid-template-columns: 1.15fr 0.85fr;
+  grid-template-columns: 1.05fr 0.95fr;
   align-items: center;
-  max-width: var(--container-max, 1200px);
+  max-width: 1440px;
   margin: 0 auto;
   width: 100%;
-  padding: 110px 32px 40px;
-  gap: 48px;
+  padding: 110px clamp(28px, 5vw, 64px) 30px;
+  gap: clamp(36px, 5vw, 64px);
   box-sizing: border-box;
 }
 
@@ -37,6 +37,7 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
+  max-width: 680px;
 }
 
 .hero-status {
@@ -66,7 +67,7 @@
 
 .avail-text {
   font-family: var(--font-mono, monospace);
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   font-weight: 400;
   color: var(--ink-dim);
   letter-spacing: 0.12em;
@@ -75,17 +76,17 @@
 
 .hero-title {
   font-family: var(--font-display, inherit);
-  font-size: clamp(2.8rem, 5.2vw, 4.8rem);
+  font-size: clamp(3rem, 5.4vw, 5.2rem);
   font-weight: 600;
   color: #fff;
-  line-height: 1.0;
+  line-height: 1.04;
   letter-spacing: -0.035em;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .hero-role {
   font-family: var(--font-mono, monospace);
-  font-size: clamp(0.72rem, 1vw, 0.82rem);
+  font-size: clamp(0.75rem, 1.05vw, 0.9rem);
   font-weight: 400;
   color: var(--accent);
   letter-spacing: 0.18em;
@@ -94,18 +95,18 @@
 }
 
 .hero-desc {
-  font-size: 1rem;
+  font-size: clamp(1.05rem, 1.35vw, 1.25rem);
   font-weight: 400;
   line-height: 1.75;
   color: var(--ink-dim);
-  max-width: 440px;
-  margin-bottom: 34px;
+  max-width: 620px;
+  margin-bottom: 38px;
 }
 
 .hero-actions {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 16px;
   flex-wrap: wrap;
 }
 
@@ -117,9 +118,9 @@
   color: #0a0d12;
   border: 1px solid #fff;
   border-radius: 9999px;
-  padding: 11px 22px;
+  padding: 12px 26px;
   font-family: var(--font-primary, sans-serif);
-  font-size: 0.85rem;
+  font-size: 0.88rem;
   font-weight: 500;
   text-decoration: none;
   letter-spacing: 0.01em;
@@ -140,11 +141,11 @@
   gap: 8px;
   border: 1px solid var(--line);
   border-radius: 9999px;
-  padding: 11px 22px;
+  padding: 12px 26px;
   color: var(--ink-dim);
   background: transparent;
   font-family: var(--font-primary, sans-serif);
-  font-size: 0.85rem;
+  font-size: 0.88rem;
   font-weight: 400;
   text-decoration: none;
   transition: border-color 180ms, color 180ms, transform 100ms;
@@ -164,7 +165,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 480px;
+  height: clamp(500px, 62vh, 680px);
   width: 100%;
 }
 
@@ -180,10 +181,10 @@
   left: 50%;
   transform: translateX(-50%);
   font-family: var(--font-mono, monospace);
-  font-size: 0.62rem;
+  font-size: 0.65rem;
   font-weight: 400;
   color: var(--ink-faint);
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   pointer-events: none;
   transition: opacity 400ms;
@@ -219,11 +220,15 @@
   .hero-body {
     grid-template-columns: 1fr;
     padding-top: 100px;
-    gap: 32px;
+    gap: 36px;
+  }
+
+  .hero-copy {
+    max-width: 100%;
   }
 
   .hero-visual {
-    height: 380px;
+    height: 440px;
   }
 }
 
@@ -231,16 +236,16 @@
   .hero-body {
     padding-left: 20px;
     padding-right: 20px;
-    padding-top: 90px;
+    padding-top: 85px;
   }
 
   .hero-visual {
-    height: 280px;
+    height: 320px;
   }
 
   .hero-actions {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
   }
 
   .hero-actions a {

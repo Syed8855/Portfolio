@@ -377,73 +377,8 @@ export function Portfolio() {
             />
 
             <div className="problem-grid">
-              <div className="problem-card">
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginBottom: "18px",
-                  }}
-                >
-                  <div
-                    className="display"
-                    style={{ fontSize: "17px", fontWeight: 600, color: "var(--ink)" }}
-                  >
-                    LeetCode Submissions
-                  </div>
-                  <a
-                    href="https://leetcode.com/u/iamhasnain04/"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="mono"
-                    style={{
-                      fontSize: "11.5px",
-                      color: "var(--accent-2)",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "4px",
-                    }}
-                  >
-                    iamhasnain04 <ArrowUpRight size={12} />
-                  </a>
-                </div>
-                <LeetCodeHeatmap />
-              </div>
-
-              <div className="problem-card">
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginBottom: "18px",
-                  }}
-                >
-                  <div
-                    className="display"
-                    style={{ fontSize: "17px", fontWeight: 600, color: "var(--ink)" }}
-                  >
-                    GitHub Contributions
-                  </div>
-                  <a
-                    href="https://github.com/SyedHasnain04"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="mono"
-                    style={{
-                      fontSize: "11.5px",
-                      color: "var(--accent-2)",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "4px",
-                    }}
-                  >
-                    SyedHasnain04 <ArrowUpRight size={12} />
-                  </a>
-                </div>
-                <GithubHeatmap />
-              </div>
+              <LeetCodeHeatmap />
+              <GithubHeatmap />
             </div>
           </div>
         </motion.section>
@@ -513,14 +448,7 @@ export function Portfolio() {
 
             <div className="contact-layout">
               <div>
-                <p
-                  style={{
-                    color: "var(--ink-dim)",
-                    fontSize: "16px",
-                    lineHeight: 1.7,
-                    marginBottom: "24px",
-                  }}
-                >
+                <p className="contact-info-lead">
                   I am interested in applied ML, retrieval-augmented generation,
                   and backend systems collaboration. If you have an ambiguous
                   problem or an engineering roadmap to discuss, reach out.
@@ -528,22 +456,13 @@ export function Portfolio() {
 
                 <a
                   href="mailto:iamsyedhasnain04@gmail.com"
-                  className="mono"
-                  style={{
-                    color: "var(--accent-2)",
-                    fontSize: "14.5px",
-                    borderBottom: "1px solid var(--line)",
-                    paddingBottom: "4px",
-                    display: "inline-block",
-                  }}
+                  className="contact-email-link"
                 >
                   iamsyedhasnain04@gmail.com
                 </a>
               </div>
 
-              <div className="contact-card">
-                <ContactForm />
-              </div>
+              <ContactForm />
             </div>
           </div>
         </motion.section>

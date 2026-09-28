@@ -14,11 +14,11 @@ export default function HeroSection() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const LAYERS = [3, 5, 8, 5, 3];
+    const LAYERS = [4, 6, 9, 6, 4];
     const LC = LAYERS.length;
-    const SPREAD_X = 2.6;
-    const SPREAD_Y = 1.1;
-    const SPREAD_Z = 1.2;
+    const SPREAD_X = 3.6;
+    const SPREAD_Y = 1.45;
+    const SPREAD_Z = 1.4;
     const FOV = 5.5;
 
     interface Node3D {
@@ -101,8 +101,8 @@ export default function HeroSection() {
       const z2 = py * sinX + z1 * cosX;
       const scale = FOV / (FOV + z2 + 2);
       return {
-        sx: W / 2 + x1 * scale * (W * 0.13),
-        sy: H / 2 + y2 * scale * (H * 0.13),
+        sx: W / 2 + x1 * scale * (W * 0.185),
+        sy: H / 2 + y2 * scale * (H * 0.22),
         scale,
         z: z2,
       };
@@ -167,7 +167,7 @@ export default function HeroSection() {
       rotY += (targetRotY - rotY) * 0.06;
       rotX += (targetRotX - rotX) * 0.06;
 
-      if (frame % 22 === 0 && particles.length < 16) spawn();
+      if (frame % 18 === 0 && particles.length < 24) spawn();
 
       const proj = nodes.map((n) => project(n.x, n.y, n.z, rotX, rotY));
 
@@ -178,12 +178,12 @@ export default function HeroSection() {
           const pa = proj[e.a],
             pb = proj[e.b];
           const avgZ = (pa.z + pb.z) / 2;
-          const alpha = Math.max(0.018, 0.032 - avgZ * 0.014);
+          const alpha = Math.max(0.02, 0.038 - avgZ * 0.015);
           ctx.beginPath();
           ctx.moveTo(pa.sx, pa.sy);
           ctx.lineTo(pb.sx, pb.sy);
           ctx.strokeStyle = `rgba(122,162,214,${alpha})`;
-          ctx.lineWidth = 0.55;
+          ctx.lineWidth = 0.65;
           ctx.stroke();
         });
 
@@ -206,17 +206,17 @@ export default function HeroSection() {
 
         const gl = ctx.createLinearGradient(pa.sx, pa.sy, x, y);
         gl.addColorStop(0, "rgba(122,162,214,0)");
-        gl.addColorStop(1, `rgba(122,162,214,${fade * 0.9})`);
+        gl.addColorStop(1, `rgba(122,162,214,${fade * 0.95})`);
         ctx.beginPath();
         ctx.moveTo(pa.sx, pa.sy);
         ctx.lineTo(x, y);
         ctx.strokeStyle = gl;
-        ctx.lineWidth = 1.4 * sc;
+        ctx.lineWidth = 1.6 * sc;
         ctx.stroke();
 
         ctx.beginPath();
-        ctx.arc(x, y, 2.2 * sc, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(180,205,235,${fade})`;
+        ctx.arc(x, y, 2.4 * sc, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(195,218,245,${fade})`;
         ctx.fill();
       });
 
@@ -227,12 +227,12 @@ export default function HeroSection() {
           const p = proj[i];
           n.pulse += 0.016;
           const glow = Math.min(1, 0.28 + Math.sin(n.pulse) * 0.14 + (n.active ? 0.7 : 0));
-          const r = (3.8 + p.scale * 2) * p.scale;
+          const r = (4.2 + p.scale * 2.6) * p.scale;
 
           ctx.beginPath();
           ctx.arc(p.sx, p.sy, r * 2.2, 0, Math.PI * 2);
           ctx.strokeStyle = `rgba(122,162,214,${glow * 0.22})`;
-          ctx.lineWidth = 0.6;
+          ctx.lineWidth = 0.65;
           ctx.stroke();
 
           ctx.beginPath();
@@ -242,7 +242,7 @@ export default function HeroSection() {
 
           ctx.beginPath();
           ctx.arc(p.sx, p.sy, r * 0.42, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(215,230,248,${glow * 0.95})`;
+          ctx.fillStyle = `rgba(225,238,252,${glow * 0.95})`;
           ctx.fill();
         });
     };
@@ -274,15 +274,15 @@ export default function HeroSection() {
           </div>
 
           <h1 className="hero-title">
-            Syed<br />Hasnain<br />Peeran
+            Syed Hasnain<br />Peeran
           </h1>
 
           <p className="hero-role">
-            ML Engineer · Backend Developer
+            ML Engineer · Applied AI Systems
           </p>
 
           <p className="hero-desc">
-            Building systems at the intersection of language models and real-world APIs.
+            Building systems at the intersection of language models, dense vector retrieval, and production APIs.
           </p>
 
           <div className="hero-actions">
