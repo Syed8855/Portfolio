@@ -1,1 +1,31 @@
-.rank-stat{display:flex;align-items:center;gap:10px;margin-top:20px;padding-top:16px;border-top:1px solid var(--line);color:#8db7ff}.rank-stat>div{display:grid;gap:1px;flex:1}.rank-stat span,.rank-stat small{font-size:11px;color:var(--muted)}.rank-stat b{font-size:21px;letter-spacing:-.04em;color:#e8f0ff}.rank-stat>a{color:#9abaf1}
+.rank-stat {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  color: var(--accent);
+}
+
+.rank-stat > div {
+  display: grid;
+  gap: 1px;
+  flex: 1;
+}
+
+.rank-stat span,
+.rank-stat small {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.rank-stat b {
+  font-size: 21px;
+  letter-spacing: -0.04em;
+  color: var(--ink);
+}
+
+.rank-stat > a {
+  color: var(--accent-2);
+}

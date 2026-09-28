@@ -7,7 +7,7 @@ html {
 }
 
 :where(a, button, summary, input, textarea, select):focus-visible {
-  outline: 2px solid #9fc5ff;
+  outline: 2px solid var(--accent);
   outline-offset: 3px;
 }
 
@@ -234,7 +234,7 @@ html {
 .project-icon,
 .activity-title > svg,
 .timeline-card h3 {
-  color: #8db7ff;
+  color: var(--accent);
 }
 
 .project-grid,
@@ -261,8 +261,8 @@ html {
 }
 
 .project-index {
-  color: #8db7ff;
-  font: 500 12px "DM Mono", monospace;
+  color: var(--accent);
+  font: 500 12px var(--font-mono);
 }
 
 .project-icon {

@@ -1,52 +1,65 @@
 "use client";
 
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef } from "react";
 import { SplitScatter } from "./scroll/SplitScatter";
 
 export interface SectionHeadingProps {
-  num: string; // e.g. "01 / ABOUT"
+  num?: string; // Optional label, e.g. "About", "Selected work"
+  label?: string;
   title: string;
 }
 
-export function SectionHeading({ num, title }: SectionHeadingProps) {
+function formatLabel(raw?: string): string {
+  if (!raw) return "";
+  // Strip any leading "01 / " pattern
+  const cleaned = raw.replace(/^\d+\s*\/\s*/, "").trim();
+  // Return sentence case (first letter uppercase, rest lowercase)
+  return cleaned.charAt(0).toUpperCase() + cleaned.slice(1).toLowerCase();
+}
+
+export function SectionHeading({ num, label, title }: SectionHeadingProps) {
   const headRef = useRef<HTMLDivElement>(null);
+  const displayLabel = formatLabel(label || num);
 
   return (
-    <div ref={headRef} style={{ marginBottom: "48px" }}>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "baseline",
-          gap: "16px",
-          marginBottom: "20px",
-        }}
-      >
-        <span
-          className="mono"
-          style={{
-            color: "var(--accent)",
-            fontSize: "13px",
-            letterSpacing: "0.06em",
-          }}
-        >
-          {num}
-        </span>
+    <div ref={headRef} className="section-header-wrap" style={{ marginBottom: "40px" }}>
+      {displayLabel && (
         <div
           style={{
-            flex: 1,
-            height: "1px",
-            background: "var(--line)",
+            display: "flex",
+            alignItems: "center",
+            gap: "14px",
+            marginBottom: "16px",
           }}
-        />
-      </div>
+        >
+          <span
+            className="mono"
+            style={{
+              color: "var(--accent)",
+              fontSize: "12.5px",
+              letterSpacing: "0.06em",
+              fontWeight: 500,
+            }}
+          >
+            {displayLabel}
+          </span>
+          <div
+            style={{
+              flex: 1,
+              height: "1px",
+              background: "var(--line)",
+            }}
+          />
+        </div>
+      )}
 
       <h2
         className="display"
         style={{
-          fontSize: "clamp(28px, 3.4vw, 42px)",
+          fontSize: "clamp(26px, 3.2vw, 38px)",
           fontWeight: 600,
-          letterSpacing: "-0.01em",
-          lineHeight: 1.15,
+          letterSpacing: "-0.02em",
+          lineHeight: 1.2,
           color: "var(--ink)",
         }}
       >
@@ -55,8 +68,8 @@ export function SectionHeading({ num, title }: SectionHeadingProps) {
           as="span"
           mode="reassemble-in"
           triggerRef={headRef}
-          start="top 85%"
-          end="top 55%"
+          start="top 88%"
+          end="top 60%"
           scrub={0.5}
         />
       </h2>
