@@ -1,24 +1,22 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useEffect } from "react";
 import Link from "next/link";
-import { motion, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
-import { ArrowLeft, ExternalLink, Sparkles, Check, Copy } from "lucide-react";
+import { motion, useReducedMotion, useScroll, useSpring } from "framer-motion";
+import { ArrowLeft, ExternalLink, ArrowRight, Layers, Cpu, Database, CheckCircle2, Lightbulb } from "lucide-react";
 import type { Project } from "@/data/portfolio";
 
-// --- Design System Transitions ---
 const transitionSettings = {
-  micro: { duration: 0.25, ease: "easeOut" },
-  component: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
-  section: { duration: 0.9, ease: [0.16, 1, 0.3, 1] },
+  component: { duration: 0.5, ease: [0.16, 1, 0.3, 1] },
+  section: { duration: 0.65, ease: [0.16, 1, 0.3, 1] },
 };
 
-const revealSection = {
-  hidden: { opacity: 0, y: 40 },
-  visible: { 
-    opacity: 1, 
+const sectionVariants = {
+  hidden: { opacity: 0, y: 28 },
+  visible: {
+    opacity: 1,
     y: 0,
-    transition: transitionSettings.section
+    transition: transitionSettings.section,
   },
 };
 
@@ -27,48 +25,40 @@ function Section({ id, children, className = "" }: { id: string; children: React
   return (
     <motion.section
       id={id}
-      className={`container ${className}`}
+      className={`cs-section ${className}`}
       initial={reducedMotion ? false : "hidden"}
       whileInView={reducedMotion ? undefined : "visible"}
-      viewport={{ once: true, margin: "-10%" }}
-      variants={revealSection}
-      style={{ paddingTop: "var(--sp-7)", paddingBottom: "var(--sp-7)", borderBottom: "1px solid var(--border-color)" }}
+      viewport={{ once: true, margin: "-60px" }}
+      variants={sectionVariants}
     >
-      {children}
+      <div className="wrap">{children}</div>
     </motion.section>
   );
 }
 
-// --- Animated Flow Component (IPO) ---
-function FlowAnimation({ stack }: { stack: string[] }) {
-  const steps = ["INPUT", "PREPROCESSING", "MODEL / LOGIC", "POSTPROCESSING", "OUTPUT"];
-  
+// Pipeline architecture breakdown
+function PipelineFlow({ stack }: { stack: string[] }) {
+  const steps = [
+    { num: "01", name: "Data Ingestion & Context", detail: "Document normalization, raw text extraction, and domain chunking" },
+    { num: "02", name: "Embedding & Indexing", detail: "Dense vector representations via fastembed and FAISS vector indices" },
+    { num: "03", name: "Retrieval & Grounding", detail: "Top-k semantic similarity matching with thresholded relevance verification" },
+    { num: "04", name: "Inference & Response", detail: "Constrained LLM context injection with strict source citation formatting" },
+  ];
+
   return (
-    <div style={{ padding: "var(--sp-5)", background: "var(--bg-primary)", border: "1px solid var(--border-color)", borderRadius: "8px", position: "relative", overflow: "hidden" }}>
-      <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: "100%", height: "100%", background: "radial-gradient(circle, var(--accent-glow) 0%, transparent 70%)", opacity: 0.3, pointerEvents: "none" }} />
-      <div style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)", position: "relative", zIndex: 1 }}>
-        {steps.map((step, i) => (
-          <motion.div 
-            key={step}
-            initial={{ opacity: 0.3, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ delay: i * 0.15, duration: 0.5 }}
-            style={{ display: "flex", alignItems: "center", gap: "var(--sp-3)" }}
-          >
-            <div style={{ width: "32px", height: "32px", borderRadius: "50%", border: "1px solid var(--border-color)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px", color: "var(--text-secondary)" }}>
-              {i + 1}
-            </div>
-            <div style={{ flex: 1, padding: "var(--sp-2) var(--sp-3)", border: "1px solid var(--border-color)", background: "rgba(255,255,255,0.02)", borderRadius: "4px" }}>
-              <div className="text-meta" style={{ color: "var(--text-primary)" }}>{step}</div>
-            </div>
-          </motion.div>
+    <div className="cs-pipeline-wrap">
+      <div className="cs-pipeline-grid">
+        {steps.map((step) => (
+          <div key={step.num} className="cs-pipeline-node">
+            <span className="cs-node-num">{step.num}</span>
+            <div className="cs-node-name">{step.name}</div>
+            <p className="cs-node-detail">{step.detail}</p>
+          </div>
         ))}
       </div>
     </div>
   );
 }
-
-// --- Page Components ---
 
 export function ProjectCaseStudy({ project }: { project: Project }) {
   const { scrollYProgress } = useScroll();
@@ -79,184 +69,204 @@ export function ProjectCaseStudy({ project }: { project: Project }) {
     window.scrollTo(0, 0);
   }, []);
 
+  const repoUrl = project.repo || "https://github.com/SyedHasnain04";
+
   return (
-    <div style={{ background: "var(--bg-primary)", minHeight: "100vh" }}>
-      <motion.div style={{ scaleX, background: "var(--accent-color)", height: "3px", position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000, transformOrigin: "left" }} />
-      
-      {/* Navbar (Minimal) */}
-      <header style={{ padding: "var(--sp-4) 0", borderBottom: "1px solid var(--border-color)" }}>
-        <div className="container" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <Link href="/#work" className="text-meta hover-text" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <ArrowLeft size={16} /> BACK TO WORK
+    <div className="cs-root">
+      <motion.div className="cs-progress-bar" style={{ scaleX }} />
+
+      {/* Navigation Header */}
+      <header className="cs-header">
+        <div className="wrap cs-header-inner">
+          <Link href="/#work" className="cs-back-link">
+            <ArrowLeft size={15} />
+            <span>Back to projects</span>
           </Link>
-          <a href="https://github.com/Syed8855/Portfolio" target="_blank" rel="noreferrer" className="text-meta hover-text" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            GITHUB <ExternalLink size={16} />
-          </a>
+          <div className="cs-header-links">
+            <a
+              href={repoUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="cs-external-link"
+            >
+              <span>GitHub</span>
+              <ExternalLink size={14} />
+            </a>
+            {project.demo && (
+              <a
+                href={project.demo}
+                target="_blank"
+                rel="noreferrer"
+                className="cs-external-link"
+              >
+                <span>Live Demo</span>
+                <ExternalLink size={14} />
+              </a>
+            )}
+          </div>
         </div>
       </header>
 
       <main>
-        {/* HERO */}
-        <section className="container" style={{ paddingTop: "120px", paddingBottom: "80px" }}>
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={transitionSettings.component}>
-            <div className="text-meta" style={{ marginBottom: "var(--sp-4)", color: "var(--accent-color)" }}>
-              {project.category.toUpperCase()}
-            </div>
-            <h1 style={{ fontSize: "var(--text-hero)", lineHeight: 0.95, letterSpacing: "-0.04em", marginBottom: "var(--sp-5)", textTransform: "uppercase" }}>
-              {project.name}
-            </h1>
-            
-            <div className="grid grid-12" style={{ gap: "var(--sp-5)", marginTop: "var(--sp-6)" }}>
-              <div style={{ gridColumn: "span 4" }}>
-                <div className="text-meta" style={{ marginBottom: "8px" }}>ROLE</div>
-                <div className="text-body" style={{ color: "var(--text-primary)" }}>Developer</div>
+        {/* HERO SECTION */}
+        <section className="cs-hero">
+          <div className="wrap">
+            <motion.div
+              initial={reducedMotion ? false : { opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={transitionSettings.component}
+            >
+              <div className="cs-eyebrow">
+                <Layers size={14} />
+                <span>{project.category}</span>
               </div>
-              <div style={{ gridColumn: "span 4" }}>
-                <div className="text-meta" style={{ marginBottom: "8px" }}>YEAR</div>
-                <div className="text-body" style={{ color: "var(--text-primary)" }}>2026</div>
+
+              <h1 className="cs-title">{project.name}</h1>
+
+              <p className="cs-lead">{project.description}</p>
+
+              {/* Quick Info Grid */}
+              <div className="cs-meta-grid">
+                <div className="cs-meta-item">
+                  <span className="cs-meta-label">Domain</span>
+                  <span className="cs-meta-val accent">{project.category}</span>
+                </div>
+                <div className="cs-meta-item">
+                  <span className="cs-meta-label">Role</span>
+                  <span className="cs-meta-val">ML Engineer</span>
+                </div>
+                <div className="cs-meta-item">
+                  <span className="cs-meta-label">Timeline</span>
+                  <span className="cs-meta-val">2026</span>
+                </div>
+                <div className="cs-meta-item">
+                  <span className="cs-meta-label">Code Access</span>
+                  <a
+                    href={repoUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="cs-meta-val"
+                    style={{ display: "inline-flex", alignItems: "center", gap: "5px", color: "var(--accent)" }}
+                  >
+                    Repository <ExternalLink size={13} />
+                  </a>
+                </div>
               </div>
-              <div style={{ gridColumn: "span 4", display: "flex", gap: "16px", alignItems: "flex-end" }}>
-                <a href="https://github.com/Syed8855" target="_blank" rel="noreferrer" className="btn btn-primary" style={{ flex: 1 }}>
-                  VIEW CODE <ExternalLink size={16} />
-                </a>
-              </div>
-            </div>
-          </motion.div>
+            </motion.div>
+          </div>
         </section>
 
-        {/* HERO VISUAL PLACEHOLDER */}
-        <div className="container" style={{ paddingBottom: "var(--sp-7)" }}>
-          <div style={{ width: "100%", aspectRatio: "21/9", background: "var(--border-color)", position: "relative", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
-             <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, background: "linear-gradient(45deg, rgba(0,102,255,0.1), transparent)", zIndex: 1 }} />
-             <Sparkles size={48} opacity={0.2} style={{ zIndex: 2 }} />
-          </div>
-        </div>
-
-        {/* WHY THIS PROJECT */}
-        <Section id="why">
-          <div className="grid grid-12">
-            <div style={{ gridColumn: "span 4" }}>
-              <h2 className="text-meta" style={{ color: "var(--text-primary)" }}>WHY THIS PROJECT?</h2>
-              <p className="text-body" style={{ fontSize: "14px", marginTop: "8px" }}>What problem made this worth building?</p>
+        {/* MOTIVATION & PROBLEM SPLIT */}
+        <Section id="motivation">
+          <div className="cs-card-split">
+            <div className="cs-card">
+              <div className="cs-card-title">
+                <Lightbulb size={18} color="var(--accent)" />
+                <span>Why this project?</span>
+              </div>
+              <p className="cs-card-body">{project.whyChosen}</p>
             </div>
-            <div style={{ gridColumn: "span 8" }}>
-              <p className="text-body" style={{ fontSize: "24px", color: "var(--text-primary)" }}>
-                {project.whyChosen}
-              </p>
+
+            <div className="cs-card">
+              <div className="cs-card-title">
+                <Cpu size={18} color="var(--accent)" />
+                <span>System Objective</span>
+              </div>
+              <p className="cs-card-body">{project.outcome}</p>
             </div>
           </div>
         </Section>
 
-        {/* PROBLEM */}
-        <Section id="problem">
-          <div className="grid grid-12">
-            <div style={{ gridColumn: "span 4" }}>
-              <h2 className="text-meta" style={{ color: "var(--text-primary)" }}>THE PROBLEM</h2>
-            </div>
-            <div style={{ gridColumn: "span 8" }}>
-              <p className="text-body" style={{ fontSize: "32px", color: "var(--text-primary)", lineHeight: 1.2 }}>
-                {project.description}
-              </p>
-            </div>
+        {/* SYSTEM ARCHITECTURE / PIPELINE */}
+        <Section id="architecture">
+          <div className="cs-section-header">
+            <span className="cs-section-label">Architecture</span>
+            <h2 className="cs-section-title">End-to-end execution pipeline</h2>
           </div>
-        </Section>
-
-        {/* APPROACH / IPO */}
-        <Section id="approach">
-          <div className="grid grid-12" style={{ alignItems: "center" }}>
-            <div style={{ gridColumn: "span 5" }}>
-              <h2 className="text-meta" style={{ color: "var(--text-primary)", marginBottom: "var(--sp-4)" }}>THE APPROACH</h2>
-              <p className="text-body" style={{ marginBottom: "var(--sp-5)" }}>
-                A structured breakdown of the system architecture from data ingestion to final output.
-              </p>
-            </div>
-            <div style={{ gridColumn: "span 7" }}>
-              <FlowAnimation stack={project.stack} />
-            </div>
-          </div>
+          <PipelineFlow stack={project.stack} />
         </Section>
 
         {/* TECH STACK */}
-        <Section id="tech">
-           <div className="grid grid-12">
-            <div style={{ gridColumn: "span 4" }}>
-              <h2 className="text-meta" style={{ color: "var(--text-primary)" }}>TECHNOLOGY STACK</h2>
-            </div>
-            <div style={{ gridColumn: "span 8" }}>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
-                {project.stack.map(tech => (
-                  <span key={tech} style={{ padding: "12px 24px", border: "1px solid var(--border-color)", borderRadius: "100px", fontSize: "16px", color: "var(--text-primary)" }}>
-                    {tech}
-                  </span>
-                ))}
+        <Section id="technologies">
+          <div className="cs-section-header">
+            <span className="cs-section-label">Tech Stack</span>
+            <h2 className="cs-section-title">Core technologies & frameworks</h2>
+          </div>
+          <div className="cs-stack-grid">
+            {project.stack.map((tech) => (
+              <span key={tech} className="cs-tech-chip">
+                <span className="cs-tech-dot" />
+                {tech}
+              </span>
+            ))}
+          </div>
+        </Section>
+
+        {/* OUTCOME & COMMUNITY IMPACT */}
+        <Section id="outcomes">
+          <div className="cs-card-split">
+            <div className="cs-card">
+              <div className="cs-card-title">
+                <CheckCircle2 size={18} color="var(--accent)" />
+                <span>Impact & Validation</span>
               </div>
+              <p className="cs-card-body">{project.communityImpact}</p>
+            </div>
+
+            <div className="cs-card">
+              <div className="cs-card-title">
+                <Database size={18} color="var(--accent)" />
+                <span>Next System Iteration</span>
+              </div>
+              <p className="cs-card-body">{project.improvement}</p>
             </div>
           </div>
         </Section>
 
-        {/* RESULTS & IMPACT */}
-        <Section id="results">
-          <div className="grid grid-12">
-            <div style={{ gridColumn: "span 12", marginBottom: "var(--sp-6)" }}>
-              <h2 className="text-meta" style={{ color: "var(--text-primary)", textAlign: "center" }}>RESULTS & IMPACT</h2>
-            </div>
-            <div style={{ gridColumn: "span 6", paddingRight: "var(--sp-4)", borderRight: "1px solid var(--border-color)" }}>
-              <div className="text-meta" style={{ marginBottom: "var(--sp-3)" }}>OUTCOME</div>
-              <p className="text-body" style={{ fontSize: "20px", color: "var(--text-primary)" }}>{project.outcome}</p>
-            </div>
-            <div style={{ gridColumn: "span 6", paddingLeft: "var(--sp-4)" }}>
-              <div className="text-meta" style={{ marginBottom: "var(--sp-3)" }}>COMMUNITY IMPACT</div>
-              <p className="text-body" style={{ fontSize: "20px", color: "var(--text-primary)" }}>{project.communityImpact}</p>
-            </div>
-          </div>
-        </Section>
-
-        {/* LEARNINGS */}
+        {/* ENGINEERING LEARNINGS */}
         <Section id="learnings">
-          <div className="grid grid-12">
-             <div style={{ gridColumn: "span 12", marginBottom: "var(--sp-6)" }}>
-              <h2 style={{ fontSize: "var(--text-section)", textAlign: "center", textTransform: "uppercase" }}>KEY LEARNINGS</h2>
-            </div>
-            <div style={{ gridColumn: "span 12" }}>
-              <div style={{ display: "flex", flexDirection: "column" }}>
-                {project.learnings.map((learning, i) => (
-                  <div key={i} style={{ padding: "var(--sp-4) 0", borderTop: "1px solid var(--border-color)", display: "flex", gap: "var(--sp-4)" }}>
-                    <div className="text-meta" style={{ width: "40px" }}>0{i+1}</div>
-                    <p className="text-body" style={{ fontSize: "24px", color: "var(--text-primary)", margin: 0 }}>{learning}</p>
-                  </div>
-                ))}
+          <div className="cs-section-header">
+            <span className="cs-section-label">Takeaways</span>
+            <h2 className="cs-section-title">Key engineering learnings</h2>
+          </div>
+          <div className="cs-learnings-list">
+            {project.learnings.map((learning, idx) => (
+              <div key={idx} className="cs-learning-card">
+                <span className="cs-learning-idx">0{idx + 1}</span>
+                <p className="cs-learning-text">{learning}</p>
               </div>
-            </div>
+            ))}
           </div>
         </Section>
 
-        {/* FUTURE */}
-        <Section id="future">
-          <div className="grid grid-12">
-            <div style={{ gridColumn: "span 4" }}>
-              <h2 className="text-meta" style={{ color: "var(--text-primary)" }}>WHAT&apos;S NEXT?</h2>
-            </div>
-            <div style={{ gridColumn: "span 8" }}>
-              <p className="text-body" style={{ fontSize: "24px", color: "var(--text-primary)" }}>
-                {project.improvement}
-              </p>
+        {/* FOOTER CTA */}
+        <section className="cs-footer-cta">
+          <div className="wrap">
+            <p className="cs-footer-text">
+              Looking to discuss machine learning systems or architectural trade-offs?
+            </p>
+            <div style={{ display: "flex", gap: "16px", justifyContent: "center", flexWrap: "wrap", marginTop: "16px" }}>
+              <Link href="/#work" className="btn-p">
+                View all projects
+                <ArrowRight size={14} />
+              </Link>
+              <Link href="/#contact" className="btn-s">
+                Get in touch
+              </Link>
             </div>
           </div>
-        </Section>
-        
-        {/* Next Project / CTA */}
-        <section style={{ padding: "120px 0", textAlign: "center" }}>
-          <Link href="/#work" className="btn btn-primary">
-            BACK TO ALL PROJECTS
-          </Link>
         </section>
       </main>
-      
-      <footer className="container" style={{ padding: "var(--sp-5) 0", borderTop: "1px solid var(--border-color)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <div className="text-meta">© 2026 SYED HASNAIN</div>
-        <div style={{ display: "flex", gap: "24px" }}>
-           <a href="https://github.com/Syed8855" target="_blank" rel="noreferrer" className="text-meta hover-text">GITHUB</a>
-           <a href="https://www.linkedin.com/in/syed-hasnain-peeran/" target="_blank" rel="noreferrer" className="text-meta hover-text">LINKEDIN</a>
+
+      <footer className="cs-footer-bar">
+        <div className="wrap cs-footer-inner">
+          <span>© 2026 SYED HASNAIN PEERAN</span>
+          <div style={{ display: "flex", gap: "24px" }}>
+            <Link href="/" style={{ color: "var(--ink-dim)" }}>HOME</Link>
+            <Link href="/#work" style={{ color: "var(--ink-dim)" }}>WORK</Link>
+            <a href="https://github.com/SyedHasnain04" target="_blank" rel="noreferrer" style={{ color: "var(--ink-dim)" }}>GITHUB</a>
+            <a href="https://www.linkedin.com/in/syed-hasnain-peeran/" target="_blank" rel="noreferrer" style={{ color: "var(--ink-dim)" }}>LINKEDIN</a>
+          </div>
         </div>
       </footer>
     </div>

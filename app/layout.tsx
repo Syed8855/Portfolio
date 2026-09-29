@@ -5,6 +5,7 @@ import "./extra.css";
 import "./activity.css";
 import "./rank.css";
 import "./overrides.css";
+import "./case-study.css";
 
 const siteUrl =
 	process.env.NEXT_PUBLIC_SITE_URL ?? "https://syed-hasnain-portfolio-opal.vercel.app";

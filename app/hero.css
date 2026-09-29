@@ -165,7 +165,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: clamp(500px, 62vh, 680px);
+  height: clamp(380px, 48vh, 520px);
   width: 100%;
 }
 
