@@ -248,7 +248,21 @@ export const experiences = [
   },
 ];
 
-export const achievements = [
+export type Achievement = {
+  title: string;
+  meta: string;
+  detail: string;
+  link?: string;
+};
+
+export const achievements: Achievement[] = [
+  {
+    title: "Razorpay BuildThon — AI Revenue Recovery",
+    meta: "Razorpay, Aug 2026",
+    detail:
+      "Engineered an autonomous hybrid Rules + ML revenue recovery agent using XGBoost and SHAP explainability, achieving an 86.4% recovery rate and 13.73% uplift over baseline.",
+    link: "https://github.com/SyedHasnain04/BuildThon-RazorPay",
+  },
   {
     title: "Winner — Datathon 2.0",
     meta: "IIITDM Kurnool, 2026",

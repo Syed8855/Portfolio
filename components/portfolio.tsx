@@ -425,7 +425,27 @@ export function Portfolio() {
                   >
                     {ach.meta.toUpperCase()}
                   </div>
-                  <div className="journey-title">{ach.title}</div>
+                  <div className="journey-title">
+                    {ach.link ? (
+                      <a
+                        href={ach.link}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{
+                          color: "inherit",
+                          textDecoration: "none",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "6px",
+                        }}
+                      >
+                        <span>{ach.title}</span>
+                        <ArrowUpRight size={14} style={{ color: "var(--ink-faint)" }} />
+                      </a>
+                    ) : (
+                      ach.title
+                    )}
+                  </div>
                   <p className="journey-desc">{ach.detail}</p>
                 </div>
               ))}
