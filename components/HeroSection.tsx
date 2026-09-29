@@ -16,10 +16,10 @@ export default function HeroSection() {
 
     const LAYERS = [4, 6, 9, 6, 4];
     const LC = LAYERS.length;
-    const SPREAD_X = 1.75;
-    const SPREAD_Y = 1.2;
-    const SPREAD_Z = 1.2;
-    const FOV = 5.0;
+    const SPREAD_X = 1.9;
+    const SPREAD_Y = 1.25;
+    const SPREAD_Z = 1.25;
+    const FOV = 5.2;
 
     interface Node3D {
       x: number;
@@ -102,8 +102,8 @@ export default function HeroSection() {
       const scale = FOV / (FOV + z2 + 2);
       const viewSize = Math.min(W, H);
       return {
-        sx: W / 2 + x1 * scale * (viewSize * 0.11),
-        sy: H / 2 + y2 * scale * (viewSize * 0.11),
+        sx: W / 2 + x1 * scale * (viewSize * 0.155),
+        sy: H / 2 + y2 * scale * (viewSize * 0.155),
         scale,
         z: z2,
       };

@@ -214,9 +214,9 @@ export const experiences = [
   {
     role: "ML Intern",
     company: "FlyRank",
-    date: "Jun 2026 – Present",
+    date: "Jun 2026 – Aug 2026",
     detail:
-      "Completed machine learning engineering internship, focusing on production model pipelines and data processing workflows.",
+      "Built a content opportunity scoring pipeline using binary classification, applying precision@K as the evaluation metric; audited training data for label leakage and anomalies to safeguard prediction reliability.",
   },
   {
     role: "Industrial Trainee",
