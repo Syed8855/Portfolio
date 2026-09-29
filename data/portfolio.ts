@@ -40,6 +40,30 @@ export const projects: Project[] = [
     featured: true,
   },
   {
+    slug: "breathewish",
+    name: "BreatheWish",
+    category: "Medical AI / Vision",
+    description:
+      "AI-assisted chest radiograph screening and clinical triage platform featuring a DenseNet-121 classification backbone, Grad-CAM visual explainability, and a decoupled FastAPI clinical workflow service.",
+    stack: ["PyTorch", "DenseNet-121", "Grad-CAM", "FastAPI", "Next.js", "PostgreSQL"],
+    outcome:
+      "Achieved 90.89% test accuracy and 0.9906 ROC-AUC with verified Grad-CAM saliency maps for clinical audibility.",
+    whyChosen:
+      "Emergency radiograph queues cause diagnostic bottlenecks for acute pulmonary consolidation. BreatheWish provides instant preliminary screening and interpretable saliency heatmaps to assist clinicians.",
+    communityImpact:
+      "Open-source clinical prototype demonstrating interpretable deep learning triage with fail-closed safety contracts.",
+    improvement:
+      "Integrated automated Grad-CAM explainability and asynchronous physician-patient communication channels.",
+    learnings: [
+      "Trained and evaluated a DenseNet-121 architecture achieving 98.25% specificity on normal radiographs.",
+      "Engineered real-time Grad-CAM saliency heatmaps overlaid on medical DICOM/radiograph imagery.",
+      "Built a fail-closed API architecture with role-based access control across doctor and patient workflows.",
+    ],
+    featured: true,
+    repo: "https://github.com/SyedHasnain04/BreatheWish",
+    demo: "https://breathewish.vercel.app",
+  },
+  {
     slug: "federated-clinical-intelligence",
     name: "Federated Clinical Intelligence",
     category: "Distributed ML",
@@ -190,28 +214,35 @@ export const experiences = [
   {
     role: "ML Intern",
     company: "FlyRank",
-    date: "// TODO: verify",
+    date: "Jun 2026 – Present",
     detail:
       "Completed machine learning engineering internship, focusing on production model pipelines and data processing workflows.",
   },
   {
+    role: "Industrial Trainee",
+    company: "Intel",
+    date: "May 2026 – Jul 2026",
+    detail:
+      "Engineered BreatheWish, an AI-assisted chest radiograph screening and clinical triage platform featuring a DenseNet-121 classification backbone (90.9% test accuracy, 0.9906 ROC-AUC) with Grad-CAM visual explainability, FastAPI backend, and collaborative physician workflows.",
+  },
+  {
     role: "Community Member",
     company: "Cohere Labs",
-    date: "// TODO: verify",
+    date: "2026",
     detail:
       "Conducted interpretability research on the J-Lens Bias project using the anthropics/jacobian-lens codebase on Qwen models, running BBQ evaluations and negative random-direction controls.",
   },
   {
     role: "Industrial Trainee",
     company: "Intel Unnati",
-    date: "Dec 2025 - Jan 2026",
+    date: "Dec 2025 – Jan 2026",
     detail:
       "Built a CNN embedding pipeline, FAISS nearest-neighbor indexing, and visual similarity retrieval workflow.",
   },
   {
     role: "Intern",
     company: "Infosys SpringBoard (Virtual)",
-    date: "Oct 2025 - Dec 2025",
+    date: "Oct 2025 – Dec 2025",
     detail:
       "Developed rule-based conversational logic and TF-IDF / cosine-similarity content recommendation modules.",
   },

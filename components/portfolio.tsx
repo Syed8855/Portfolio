@@ -403,6 +403,7 @@ export function Portfolio() {
                   <span className="journey-node-dot" />
                   <div className="journey-meta">
                     {exp.company.toUpperCase()}
+                    {exp.date && ` · ${exp.date.toUpperCase()}`}
                   </div>
                   <div className="journey-title">{exp.role}</div>
                   <p className="journey-desc">{exp.detail}</p>
